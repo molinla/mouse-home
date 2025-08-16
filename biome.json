@@ -20,6 +20,10 @@
       "style": {
         "useImportType": "error"
       },
+	  "a11y": {
+		"useSemanticElements": "error",
+		"useSemanticHeading": "error"
+	  },
       "correctness": {
         "useExhaustiveDependencies": "error"
       }

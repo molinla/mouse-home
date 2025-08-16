@@ -1,16 +1,15 @@
-import Contact from './components/Contact'
-import Features from './components/Features'
-import Footer from './components/Footer'
-import Hero from './components/Hero'
-
+import Features from './components/features.tsx'
+import Footer from './components/footer.tsx'
+import Hero from './components/hero.tsx'
+import Header from './components/header.tsx'
 function App() {
   return (
-    <div className="min-h-screen bg-white">
+    <article className="min-h-screen select-none">
+      <Header />
       <Hero />
       <Features />
-      <Contact />
       <Footer />
-    </div>
+    </article>
   )
 }
 

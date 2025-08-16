@@ -1,30 +1,31 @@
+import device from '../assets/imgs/device.png'
+import LightRays from '../hero-sections/light-rays'
+
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-          Welcome to{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-            Mouse Home
-          </span>
+    <section className="relative h-screen">
+      <LightRays className="absolute inset-0 z-0" />
+      <div className="absolute inset-0 top-0 text-white h-screen flex flex-col pt-20 items-center justify-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+        <h1 className="animated-gradient text-xl md:text-3xl font-bold mb-4">
+          黑匣HEX·AI Deep learning
         </h1>
-        <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
-          创新科技，连接未来。我们致力于为您提供最优质的产品和服务体验。
+        <p className="text-3xl font-bold md:text-6xl mb-4">
+          全面聚合AI边缘计算视觉深度学习
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button type="button" className="px-8 py-3 bg-blue-600 text-white rounded-lg text-lg font-medium hover:bg-blue-700 transition-colors">
-            开始探索
-          </button>
-          <button type="button" className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg text-lg font-medium hover:bg-gray-50 transition-colors">
-            了解更多
-          </button>
-        </div>
+        <p className="text-xl font-bold md:text-2xl">
+          边缘计算设备·轻松调用并创造AI视觉
+        </p>
+        <img
+          className="mt-20"
+          draggable={false}
+          width={723}
+          height={407}
+          src={device}
+          alt="device"
+        />
       </div>
-
-      {/* Decorative elements */}
-      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-      <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-      <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      <div className="absolute z-10 bg-[#F4CD2E] bottom-0 blur-[541px] left-0 size-[340px] rounded-full opacity-30"></div>
+      <div className="absolute z-10 bg-[#ED9BFC] bottom-0 blur-[541px] right-0 size-[340px] rounded-full opacity-30"></div>
     </section>
   )
 }
