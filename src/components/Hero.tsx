@@ -6,7 +6,7 @@ export default function Hero() {
     <section className="relative h-screen">
       <LightRays className="absolute inset-0 z-0" />
       <div className="absolute inset-0 top-0 text-white h-screen flex flex-col pt-20 items-center justify-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-        <h1 className="animated-gradient text-xl md:text-3xl font-bold mb-4">
+        <h1 className="animated-gradient text-3xl font-bold mb-4">
           黑匣HEX·AI Deep learning
         </h1>
         <p className="text-3xl font-bold md:text-6xl mb-4">
