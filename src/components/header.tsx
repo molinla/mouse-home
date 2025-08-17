@@ -62,7 +62,7 @@ export default function Header() {
         <Button
           isIconOnly
           aria-label="theme"
-          color="default"
+          variant="light"
           onPress={() => {
             setIsDark(!isDark)
           }}

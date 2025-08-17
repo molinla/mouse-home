@@ -3,7 +3,8 @@
 /* biome-ignore lint: Tailwind CSS 4 @theme directive */
 @plugin './hero.ts';
 /* Note: You may need to change the path to fit your project structure */
-@source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+/* biome-ignore lint: Tailwind CSS 4 @theme directive */
+@source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
 /* biome-ignore lint: Tailwind CSS 4 @theme directive */
 @custom-variant dark (&:is(.dark *));
 
