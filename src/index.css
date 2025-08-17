@@ -19,6 +19,18 @@ body {
   background: #181818;
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
+
+
 @keyframes gradientFlow {
   0% {
     background-position: -200% center;
