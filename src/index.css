@@ -1,8 +1,19 @@
 @import "tailwindcss";
 @import "./assets/fonts/puhui.css";
 
+/* biome-ignore lint: Tailwind CSS 4 @theme directive */
+@theme {
+  --breakpoint-xs: 30rem;
+  --breakpoint-2xl: 100rem;
+  --breakpoint-3xl: 120rem;
+  --breakpoint-hd: 160rem;
+}
+
 body {
-  font-family: 'puhui', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family:
+    "puhui", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #181818;
@@ -30,13 +41,14 @@ body {
 
 .animated-gradient {
   background:
-    linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%),
-    linear-gradient(90deg,
-      #999999 0%,
-      #808080 33%,
-      #6a6a6a 66%,
-      #999999 100%);
-  background-size: 40% 100%, 400% 100%;
+    linear-gradient(110deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 70%),
+    linear-gradient(90deg, #999999 0%, #808080 33%, #6a6a6a 66%, #999999 100%);
+  background-size:
+    40% 100%,
+    400% 100%;
   animation:
     shine 4s linear infinite,
     gradientFlow 24s linear infinite;

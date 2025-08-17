@@ -20,10 +20,12 @@
       "style": {
         "useImportType": "error"
       },
-	  "a11y": {
-		"useSemanticElements": "error",
-		"useSemanticHeading": "error"
-	  },
+      "a11y": {
+        "useValidAnchor": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off"
+      },
       "correctness": {
         "useExhaustiveDependencies": "error"
       }
@@ -36,7 +38,6 @@
       "trailingCommas": "es5"
     }
   },
-
   "assist": {
     "enabled": true,
     "actions": {

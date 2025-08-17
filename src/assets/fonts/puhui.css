@@ -1,81 +1,85 @@
 /* 阿里巴巴普惠字体 - PuHui Font Family */
 
 @font-face {
-  font-family: 'puhui';
-  src: url('./alibaba-puhui/AlibabaPuHuiTi-3-35-Thin.woff2') format('woff2');
+  font-family: "puhui";
+  src: url("./alibaba-puhui/AlibabaPuHuiTi-3-35-Thin.woff2") format("woff2");
   font-weight: 100;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'puhui';
-  src: url('./alibaba-puhui/AlibabaPuHuiTi-3-45-Light.woff2') format('woff2');
+  font-family: "puhui";
+  src: url("./alibaba-puhui/AlibabaPuHuiTi-3-45-Light.woff2") format("woff2");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'puhui';
-  src: url('./alibaba-puhui/AlibabaPuHuiTi-3-55-Regular.woff2') format('woff2');
+  font-family: "puhui";
+  src: url("./alibaba-puhui/AlibabaPuHuiTi-3-55-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'puhui';
-  src: url('./alibaba-puhui/AlibabaPuHuiTi-3-55-RegularL3.woff2') format('woff2');
+  font-family: "puhui";
+  src: url("./alibaba-puhui/AlibabaPuHuiTi-3-55-RegularL3.woff2")
+    format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, U+2B740-2B81F, U+2B820-2CEAF;
+  unicode-range:
+    U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, U+2B740-2B81F,
+    U+2B820-2CEAF;
 }
 
 @font-face {
-  font-family: 'puhui';
-  src: url('./alibaba-puhui/AlibabaPuHuiTi-3-65-Medium.woff2') format('woff2');
+  font-family: "puhui";
+  src: url("./alibaba-puhui/AlibabaPuHuiTi-3-65-Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'puhui';
-  src: url('./alibaba-puhui/AlibabaPuHuiTi-3-75-SemiBold.woff2') format('woff2');
+  font-family: "puhui";
+  src: url("./alibaba-puhui/AlibabaPuHuiTi-3-75-SemiBold.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'puhui';
-  src: url('./alibaba-puhui/AlibabaPuHuiTi-3-85-Bold.woff2') format('woff2');
+  font-family: "puhui";
+  src: url("./alibaba-puhui/AlibabaPuHuiTi-3-85-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'puhui';
-  src: url('./alibaba-puhui/AlibabaPuHuiTi-3-95-ExtraBold.woff2') format('woff2');
+  font-family: "puhui";
+  src: url("./alibaba-puhui/AlibabaPuHuiTi-3-95-ExtraBold.woff2")
+    format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'puhui';
-  src: url('./alibaba-puhui/AlibabaPuHuiTi-3-105-Heavy.woff2') format('woff2');
+  font-family: "puhui";
+  src: url("./alibaba-puhui/AlibabaPuHuiTi-3-105-Heavy.woff2") format("woff2");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'puhui';
-  src: url('./alibaba-puhui/AlibabaPuHuiTi-3-115-Black.woff2') format('woff2');
+  font-family: "puhui";
+  src: url("./alibaba-puhui/AlibabaPuHuiTi-3-115-Black.woff2") format("woff2");
   font-weight: 950;
   font-style: normal;
   font-display: swap;

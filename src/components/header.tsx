@@ -9,7 +9,7 @@ export default function Header() {
       <h1 title="黑匣边缘计算">
         <img src={logo} alt="logo" />
       </h1>
-      
+
       {/* Desktop Navigation */}
       <nav className="hidden md:flex items-center gap-15">
         <a
@@ -52,8 +52,19 @@ export default function Header() {
         type="button"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        <svg
+          role="presentation"
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6h16M4 12h16M4 18h16"
+          />
         </svg>
       </button>
 
