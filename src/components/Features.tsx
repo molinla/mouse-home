@@ -1,12 +1,12 @@
 import linux from '../assets/linux.svg'
 import macos from '../assets/mac.svg'
-import windows from '../assets/windows.svg'
 import preview from '../assets/imgs/preview.png'
+import windows from '../assets/windows.svg'
 
 function WhatCanWeDo() {
   return (
-    <section className="w-full min-h-screen bg-white flex flex-col items-center justify-center gap-6 md:gap-12 p-4 md:p-12">
-      <h1 className="max-w-7xl mx-auto text-3xl md:text-5xl lg:text-7xl font-bold leading-tight md:leading-[4] text-[#1d1d1d] text-center">
+    <section className="w-full min-h-screen bg-white dark:bg-transparent flex flex-col items-center justify-center gap-6 md:gap-12 p-4 md:p-12">
+      <h1 className="max-w-7xl mx-auto text-3xl md:text-5xl lg:text-7xl font-bold leading-tight md:leading-[4] text-[#1d1d1d] dark:text-white text-center">
         黑匣边缘计算设备能做什么？
       </h1>
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-2 text-white gap-6 md:gap-12">
@@ -32,19 +32,19 @@ function WhatCanWeDo() {
             </li>
           </ul>
         </article>
-        <article className="bg-[#F4F4F4] rounded-xl p-4 md:p-6">
-          <h2 className="text-[#004DFF] font-bold text-xl md:text-2xl lg:text-3xl leading-tight md:leading-[1.25] mb-8 md:mb-16 lg:mb-24">
+        <article className="bg-[#F4F4F4] dark:bg-[#0B0B0C] rounded-xl p-4 md:p-6">
+          <h2 className="text-[#004DFF] dark:text-blue-400 font-bold text-xl md:text-2xl lg:text-3xl leading-tight md:leading-[1.25] mb-8 md:mb-16 lg:mb-24">
             任何需要有逻辑、规则的图像检测的操作，都可以使用黑匣边缘计算设备来实现
           </h2>
-          <p className="text-[#757575] text-base md:text-lg lg:text-xl">
+          <p className="text-[#757575] dark:text-gray-300 text-base md:text-lg lg:text-xl">
             黑匣HEX可以控制您的键盘和鼠标，就像人一样操作，从而节省一些重复性的劳动时间。
           </p>
         </article>
-        <article className="bg-[#F4F4F4] rounded-xl p-4 md:p-6">
-          <h2 className="text-[#FF7300] font-bold text-xl md:text-2xl lg:text-3xl leading-tight md:leading-[1.25] mb-8 md:mb-16 lg:mb-24">
+        <article className="bg-[#F4F4F4] dark:bg-[#0B0B0C] rounded-xl p-4 md:p-6">
+          <h2 className="text-[#FF7300] dark:text-orange-400 font-bold text-xl md:text-2xl lg:text-3xl leading-tight md:leading-[1.25] mb-8 md:mb-16 lg:mb-24">
             使用串口兼容调用外部设备，如：摄像头，机械臂，写字机器人等
           </h2>
-          <p className="text-[#757575] text-base md:text-lg lg:text-xl">
+          <p className="text-[#757575] dark:text-gray-300 text-base md:text-lg lg:text-xl">
             全自动操作外部设备，节省人力资源，满怀所想，尽在掌握！
           </p>
         </article>
@@ -55,8 +55,8 @@ function WhatCanWeDo() {
 
 function LowCode() {
   return (
-    <section className="w-full min-h-screen bg-white flex flex-col items-center justify-center gap-6 md:gap-12 p-4 md:p-12 pb-12 md:pb-24">
-      <h1 className="max-w-7xl mx-auto text-3xl md:text-5xl lg:text-7xl font-bold leading-tight md:leading-[4] text-[#1d1d1d] text-center">
+    <section className="w-full min-h-screen bg-white dark:bg-transparent flex flex-col items-center justify-center gap-6 md:gap-12 p-4 md:p-12 pb-12 md:pb-24">
+      <h1 className="max-w-7xl mx-auto text-3xl md:text-5xl lg:text-7xl font-bold leading-tight md:leading-[4] text-[#1d1d1d] dark:text-white text-center">
         低代码搭建AI应用
       </h1>
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-4 gap-6 md:gap-12 w-full">
@@ -74,47 +74,47 @@ function LowCode() {
               alt="lowCode"
             />
             <figcaption className="text-center lg:text-left">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl leading-tight lg:leading-[2] font-bold mb-4">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl leading-tight lg:leading-[2] font-bold mb-4 text-[#1d1d1d] dark:text-white">
                 简单易用的搭建和调试运行
               </h2>
-              <p className="text-[#727272] font-medium text-base md:text-lg">
+              <p className="text-[#727272] dark:text-gray-300 font-medium text-base md:text-lg">
                 只需要简单的复制粘贴就可以得到YOLO 目标检测专精AI客制化脚本
               </p>
             </figcaption>
           </figure>
         </article>
-        <article className="lg:col-span-1 lg:row-span-1 bg-[#F4F4F4] rounded-xl p-6 md:p-12">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold flex flex-col lg:flex-row lg:items-center gap-2 mb-4">
+        <article className="lg:col-span-1 lg:row-span-1 bg-[#F4F4F4] dark:bg-[#0B0B0C] rounded-xl p-6 md:p-12">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold flex flex-col lg:flex-row lg:items-center gap-2 mb-4 text-[#1d1d1d] dark:text-white">
             <span>多元化框架导入</span>
             <span className="relative pl-[2em] bg-[#FF8400]/20 text-sm md:text-base before:animate-ping rounded-full px-4 py-1 text-[#FF4800] before:content-[''] before:absolute before:left-[1em] before:top-1/2 before:-translate-y-1/2 before:inline-block before:size-2 before:rounded-full before:bg-[#FF4800] before:mr-2 w-fit">
               持续接入
             </span>
           </h2>
-          <p className="font-medium text-[#3D3D3D] text-base md:text-lg">
+          <p className="font-medium text-[#3D3D3D] dark:text-gray-300 text-base md:text-lg">
             持续接入各版本YOLO框架及设备调用。
           </p>
         </article>
-        <article className="lg:col-span-1 lg:row-span-1 bg-[#F4F4F4] rounded-xl p-6 md:p-12">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+        <article className="lg:col-span-1 lg:row-span-1 bg-[#F4F4F4] dark:bg-[#0B0B0C] rounded-xl p-6 md:p-12">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-[#1d1d1d] dark:text-white">
             自定义模型导入
           </h2>
-          <p className="font-medium text-[#3D3D3D] text-base md:text-lg">
+          <p className="font-medium text-[#3D3D3D] dark:text-gray-300 text-base md:text-lg">
             自行训练的模型可直接导入使用，多元化角度强
           </p>
         </article>
-        <article className="lg:col-span-1 lg:row-span-1 bg-[#F4F4F4] rounded-xl p-6 md:p-12">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+        <article className="lg:col-span-1 lg:row-span-1 bg-[#F4F4F4] dark:bg-[#0B0B0C] rounded-xl p-6 md:p-12">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-[#1d1d1d] dark:text-white">
             分享脚本可加密
           </h2>
-          <p className="font-medium text-[#3D3D3D] text-base md:text-lg">
+          <p className="font-medium text-[#3D3D3D] dark:text-gray-300 text-base md:text-lg">
             如果创造出一个脚本，我想分享给其他人，也可脚本加密保护作品安全，当然，也可指定使用者使用！
           </p>
         </article>
-        <article className="lg:col-span-1 lg:row-span-3 lg:row-start-2 lg:col-start-2 bg-[#1A1A1A] rounded-xl p-6 md:p-12">
+        <article className="lg:col-span-1 lg:row-span-3 lg:row-start-2 lg:col-start-2 bg-[#1A1A1A] dark:bg-[#0B0B0C] rounded-xl p-6 md:p-12">
           <h2 className="text-white text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
             丰富的UI调试组件
           </h2>
-          <p className="text-[#707070] font-medium mb-6 md:mb-8 text-base md:text-lg">
+          <p className="text-[#707070] dark:text-gray-400 font-medium mb-6 md:mb-8 text-base md:text-lg">
             持续添加用户所需的调试UI组件库的UI组件，亦使使用更加简单便捷，使用无需修改代码，界面可调。
           </p>
           <ul className="space-y-4">
@@ -133,7 +133,7 @@ function LowCode() {
 
 export default function Features() {
   return (
-    <section className="min-h-screen ">
+    <section className="min-h-screen">
       <WhatCanWeDo />
       <LowCode />
     </section>

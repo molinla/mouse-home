@@ -1,8 +1,21 @@
 import { useState } from 'react'
 import logo from '../assets/logo.svg'
+import { Button } from '@heroui/react'
+import light from '../assets/icons/light.svg'
+import dark from '../assets/icons/dark.svg'
+import { useEffect } from 'react'
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isDark, setIsDark] = useState(false)
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [isDark])
 
   return (
     <header className="absolute z-20 inset-0 top-0 h-fit mx-auto w-full max-w-7xl text-[#848484] p-5 flex items-center justify-between">
@@ -37,14 +50,30 @@ export default function Header() {
           关于我们
         </a>
       </nav>
-
       {/* Desktop Button */}
-      <button
-        className="hidden md:block cursor-pointer hover:text-[#d3d3d3] transition-colors p-2 text-[#3d3d3d]"
-        type="button"
-      >
-        使用协议
-      </button>
+
+      <nav className="hidden md:flex items-center gap-2">
+        <button
+          className="cursor-pointer hover:text-[#d3d3d3] transition-colors p-2 text-[#3d3d3d]"
+          type="button"
+        >
+          使用协议
+        </button>
+        <Button
+          isIconOnly
+          aria-label="theme"
+          color="default"
+          onPress={() => {
+            setIsDark(!isDark)
+          }}
+        >
+          {isDark ? (
+            <img src={dark} alt="dark" />
+          ) : (
+            <img src={light} alt="light" />
+          )}
+        </Button>
+      </nav>
 
       {/* Mobile Menu Button */}
       <button
@@ -100,13 +129,29 @@ export default function Header() {
             >
               关于我们
             </a>
-            <button
-              className="cursor-pointer hover:text-[#d3d3d3] transition-colors p-3 text-[#3d3d3d] text-left"
-              type="button"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              使用协议
-            </button>
+            <nav className="flex items-center justify-between gap-2">
+              <button
+                className="cursor-pointer hover:text-[#d3d3d3] transition-colors p-3 text-[#3d3d3d] text-left"
+                type="button"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                使用协议
+              </button>
+              <Button
+                isIconOnly
+                aria-label="theme"
+                color="default"
+                onPress={() => {
+                  setIsDark(!isDark)
+                }}
+              >
+                {isDark ? (
+                  <img src={dark} alt="dark" />
+                ) : (
+                  <img src={light} alt="light" />
+                )}
+              </Button>
+            </nav>
           </nav>
         </div>
       )}
