@@ -1,5 +1,5 @@
 import { Mesh, Program, Renderer, Triangle } from 'ogl'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 
 export type RaysOrigin =
   | 'top-center'
@@ -91,6 +91,48 @@ const LightRays: React.FC<LightRaysProps> = ({
   const cleanupFunctionRef = useRef<(() => void) | null>(null)
   const [isVisible, setIsVisible] = useState(false)
   const observerRef = useRef<IntersectionObserver | null>(null)
+  const isWebGLInitializedRef = useRef(false)
+  const lastFrameTimeRef = useRef(0)
+  const followMouseRef = useRef(followMouse)
+  const mouseInfluenceRef = useRef(mouseInfluence)
+
+  useEffect(() => {
+    followMouseRef.current = followMouse
+    mouseInfluenceRef.current = mouseInfluence
+  }, [followMouse, mouseInfluence])
+
+  const throttledMouseMove = useCallback((e: MouseEvent) => {
+    if (!containerRef.current || !rendererRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / rect.width
+    const y = (e.clientY - rect.top) / rect.height
+    mouseRef.current = { x, y }
+  }, [])
+
+  const throttle = useCallback(
+    <T extends any[]>(func: (...args: T) => void, delay: number) => {
+      let timeoutId: NodeJS.Timeout | null = null
+      let lastExecTime = 0
+      return (...args: T) => {
+        const currentTime = Date.now()
+
+        if (currentTime - lastExecTime > delay) {
+          func(...args)
+          lastExecTime = currentTime
+        } else {
+          if (timeoutId) clearTimeout(timeoutId)
+          timeoutId = setTimeout(
+            () => {
+              func(...args)
+              lastExecTime = Date.now()
+            },
+            delay - (currentTime - lastExecTime)
+          )
+        }
+      }
+    },
+    []
+  )
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -114,7 +156,8 @@ const LightRays: React.FC<LightRaysProps> = ({
   }, [])
 
   useEffect(() => {
-    if (!isVisible || !containerRef.current) return
+    if (!isVisible || !containerRef.current || isWebGLInitializedRef.current)
+      return
 
     if (cleanupFunctionRef.current) {
       cleanupFunctionRef.current()
@@ -252,26 +295,28 @@ void main() {
         rayPos: { value: [0, 0] },
         rayDir: { value: [0, 1] },
 
-        raysColor: { value: hexToRgb(raysColor) },
-        raysSpeed: { value: raysSpeed },
-        lightSpread: { value: lightSpread },
-        rayLength: { value: rayLength },
-        pulsating: { value: pulsating ? 1.0 : 0.0 },
-        fadeDistance: { value: fadeDistance },
-        saturation: { value: saturation },
+        raysColor: { value: hexToRgb(DEFAULT_COLOR) },
+        raysSpeed: { value: 1 },
+        lightSpread: { value: 1 },
+        rayLength: { value: 2 },
+        pulsating: { value: 0.0 },
+        fadeDistance: { value: 1.0 },
+        saturation: { value: 1.0 },
         mousePos: { value: [0.5, 0.5] },
-        mouseInfluence: { value: mouseInfluence },
-        noiseAmount: { value: noiseAmount },
-        distortion: { value: distortion },
+        mouseInfluence: { value: 0.1 },
+        noiseAmount: { value: 0.0 },
+        distortion: { value: 0.0 },
       }
       uniformsRef.current = uniforms
 
       const geometry = new Triangle(gl)
+
       const program = new Program(gl, {
         vertex: vert,
         fragment: frag,
         uniforms,
       })
+
       const mesh = new Mesh(gl, { geometry, program })
       meshRef.current = mesh
 
@@ -289,46 +334,65 @@ void main() {
 
         uniforms.iResolution.value = [w, h]
 
-        const { anchor, dir } = getAnchorAndDir(raysOrigin, w, h)
+        // 使用默认的top-center位置
+        const { anchor, dir } = getAnchorAndDir('top-center', w, h)
         uniforms.rayPos.value = anchor
         uniforms.rayDir.value = dir
       }
 
-      const loop = (t: number) => {
-        if (!rendererRef.current || !uniformsRef.current || !meshRef.current) {
-          return
-        }
-
-        uniforms.iTime.value = t * 0.001
-
-        if (followMouse && mouseInfluence > 0.0) {
-          const smoothing = 0.92
-
-          smoothMouseRef.current.x =
-            smoothMouseRef.current.x * smoothing +
-            mouseRef.current.x * (1 - smoothing)
-          smoothMouseRef.current.y =
-            smoothMouseRef.current.y * smoothing +
-            mouseRef.current.y * (1 - smoothing)
-
-          uniforms.mousePos.value = [
-            smoothMouseRef.current.x,
-            smoothMouseRef.current.y,
-          ]
-        }
-
-        try {
-          renderer.render({ scene: mesh })
-          animationIdRef.current = requestAnimationFrame(loop)
-        } catch (error) {
-          console.warn('WebGL rendering error:', error)
-          return
-        }
-      }
-
       window.addEventListener('resize', updatePlacement)
       updatePlacement()
-      animationIdRef.current = requestAnimationFrame(loop)
+
+      isWebGLInitializedRef.current = true
+
+      // WebGL初始化完成后，如果组件可见且没有活动的动画循环，立即启动
+      if (isVisible && !animationIdRef.current) {
+        const loop = (t: number) => {
+          if (
+            !rendererRef.current ||
+            !uniformsRef.current ||
+            !meshRef.current
+          ) {
+            return
+          }
+
+          const deltaTime = t - lastFrameTimeRef.current
+          if (deltaTime < 16.67) {
+            animationIdRef.current = requestAnimationFrame(loop)
+            return
+          }
+          lastFrameTimeRef.current = t
+
+          const uniforms = uniformsRef.current
+          uniforms.iTime.value = t * 0.001
+
+          if (followMouseRef.current && mouseInfluenceRef.current > 0.0) {
+            const smoothing = 0.92
+
+            smoothMouseRef.current.x =
+              smoothMouseRef.current.x * smoothing +
+              mouseRef.current.x * (1 - smoothing)
+            smoothMouseRef.current.y =
+              smoothMouseRef.current.y * smoothing +
+              mouseRef.current.y * (1 - smoothing)
+
+            uniforms.mousePos.value = [
+              smoothMouseRef.current.x,
+              smoothMouseRef.current.y,
+            ]
+          }
+
+          try {
+            rendererRef.current.render({ scene: meshRef.current })
+            animationIdRef.current = requestAnimationFrame(loop)
+          } catch (error) {
+            console.error('WebGL rendering error in immediate loop:', error)
+            return
+          }
+        }
+
+        animationIdRef.current = requestAnimationFrame(loop)
+      }
 
       cleanupFunctionRef.current = () => {
         if (animationIdRef.current) {
@@ -340,9 +404,24 @@ void main() {
 
         if (renderer) {
           try {
-            const canvas = renderer.gl.canvas
-            const loseContextExt =
-              renderer.gl.getExtension('WEBGL_lose_context')
+            const gl = renderer.gl
+            const canvas = gl.canvas
+
+            if (meshRef.current?.program?.program) {
+              gl.deleteProgram(meshRef.current.program.program)
+            }
+
+            if (meshRef.current?.geometry?.attributes) {
+              Object.values(meshRef.current.geometry.attributes).forEach(
+                (attr: any) => {
+                  if (attr.buffer) {
+                    gl.deleteBuffer(attr.buffer)
+                  }
+                }
+              )
+            }
+
+            const loseContextExt = gl.getExtension('WEBGL_lose_context')
             if (loseContextExt) {
               loseContextExt.loseContext()
             }
@@ -350,6 +429,9 @@ void main() {
             if (canvas?.parentNode) {
               canvas.parentNode.removeChild(canvas)
             }
+
+            canvas.width = 1
+            canvas.height = 1
           } catch (error) {
             console.warn('Error during WebGL cleanup:', error)
           }
@@ -358,6 +440,8 @@ void main() {
         rendererRef.current = null
         uniformsRef.current = null
         meshRef.current = null
+        isWebGLInitializedRef.current = false
+        lastFrameTimeRef.current = 0
       }
     }
 
@@ -369,26 +453,17 @@ void main() {
         cleanupFunctionRef.current = null
       }
     }
-  }, [
-    isVisible,
-    raysOrigin,
-    raysColor,
-    raysSpeed,
-    lightSpread,
-    rayLength,
-    pulsating,
-    fadeDistance,
-    saturation,
-    followMouse,
-    mouseInfluence,
-    noiseAmount,
-    distortion,
-  ])
+  }, [isVisible])
 
   useEffect(() => {
-    if (!uniformsRef.current || !containerRef.current || !rendererRef.current)
+    if (
+      !uniformsRef.current ||
+      !containerRef.current ||
+      !rendererRef.current ||
+      !isWebGLInitializedRef.current
+    ) {
       return
-
+    }
     const u = uniformsRef.current
     const renderer = rendererRef.current
 
@@ -423,19 +498,66 @@ void main() {
   ])
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current || !rendererRef.current) return
-      const rect = containerRef.current.getBoundingClientRect()
-      const x = (e.clientX - rect.left) / rect.width
-      const y = (e.clientY - rect.top) / rect.height
-      mouseRef.current = { x, y }
+    if (!isWebGLInitializedRef.current) {
+      return
     }
 
-    if (followMouse) {
-      window.addEventListener('mousemove', handleMouseMove)
-      return () => window.removeEventListener('mousemove', handleMouseMove)
+    if (isVisible && !animationIdRef.current) {
+      const loop = (t: number) => {
+        if (!rendererRef.current || !uniformsRef.current || !meshRef.current) {
+          return
+        }
+
+        const deltaTime = t - lastFrameTimeRef.current
+        if (deltaTime < 16.67) {
+          animationIdRef.current = requestAnimationFrame(loop)
+          return
+        }
+        lastFrameTimeRef.current = t
+
+        const uniforms = uniformsRef.current
+        uniforms.iTime.value = t * 0.001
+
+        if (followMouseRef.current && mouseInfluenceRef.current > 0.0) {
+          const smoothing = 0.92
+
+          smoothMouseRef.current.x =
+            smoothMouseRef.current.x * smoothing +
+            mouseRef.current.x * (1 - smoothing)
+          smoothMouseRef.current.y =
+            smoothMouseRef.current.y * smoothing +
+            mouseRef.current.y * (1 - smoothing)
+
+          uniforms.mousePos.value = [
+            smoothMouseRef.current.x,
+            smoothMouseRef.current.y,
+          ]
+        }
+
+        try {
+          rendererRef.current.render({ scene: meshRef.current })
+          animationIdRef.current = requestAnimationFrame(loop)
+        } catch (error) {
+          console.error('WebGL rendering error:', error)
+          return
+        }
+      }
+
+      animationIdRef.current = requestAnimationFrame(loop)
+    } else if (!isVisible && animationIdRef.current) {
+      cancelAnimationFrame(animationIdRef.current)
+      animationIdRef.current = null
     }
-  }, [followMouse])
+  }, [isVisible])
+
+  useEffect(() => {
+    if (!followMouse) return
+
+    const throttledHandler = throttle(throttledMouseMove, 16)
+
+    window.addEventListener('mousemove', throttledHandler)
+    return () => window.removeEventListener('mousemove', throttledHandler)
+  }, [followMouse, throttledMouseMove, throttle])
 
   return (
     <div
