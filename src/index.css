@@ -76,3 +76,29 @@ html {
   -webkit-text-fill-color: transparent;
   filter: brightness(1.3) saturate(1.4) contrast(1.1);
 }
+
+/* 3D 变换样式 */
+.transform-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.translate-z-1 {
+  transform: translateZ(1rem);
+}
+
+.translate-z-0 {
+  transform: translateZ(0);
+}
+
+.translate-z-minus-1 {
+  transform: translateZ(-1rem);
+}
+
+.translate-z-minus-2 {
+  transform: translateZ(-2rem);
+}
+
+.translate-z-minus-3 {
+  transform: translateZ(-3rem);
+}
