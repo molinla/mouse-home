@@ -1,9 +1,8 @@
-import { useState } from 'react'
-import logo from '../assets/logo.svg'
 import { Button } from '@heroui/react'
-import light from '../assets/icons/light.svg'
+import { useEffect, useState } from 'react'
 import dark from '../assets/icons/dark.svg'
-import { useEffect } from 'react'
+import light from '../assets/icons/light.svg'
+import logo from '../assets/logo.svg'
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -18,13 +17,13 @@ export default function Header() {
   }, [isDark])
 
   return (
-    <header className="absolute z-20 inset-0 top-0 h-fit mx-auto w-full max-w-7xl text-[#848484] p-5 flex items-center justify-between">
-      <h1 title="黑匣边缘计算">
+    <header className="absolute z-20 inset-0 top-0 h-fit mx-auto w-full max-w-7xl hd:max-w-9xl text-[#848484] p-5 flex items-center justify-between">
+      <h1 title="黑匣边缘计算" className="hd:scale-125">
         <img src={logo} alt="logo" />
       </h1>
 
       {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center gap-15">
+      <nav className="hidden md:flex items-center gap-15 hd:text-2xl">
         <a
           className="hover:text-[#d3d3d3] !text-[#d3d3d3] cursor-pointer transition-colors p-2"
           href="#"
@@ -52,7 +51,7 @@ export default function Header() {
       </nav>
       {/* Desktop Button */}
 
-      <nav className="hidden md:flex items-center gap-2">
+      <nav className="hidden md:flex items-center gap-2 hd:text-2xl">
         <button
           className="cursor-pointer hover:text-[#d3d3d3] transition-colors p-2 text-[#3d3d3d]"
           type="button"
@@ -68,9 +67,9 @@ export default function Header() {
           }}
         >
           {isDark ? (
-            <img src={dark} alt="dark" />
+            <img src={dark} alt="dark" className="hd:scale-125" />
           ) : (
-            <img src={light} alt="light" />
+            <img src={light} alt="light" className="hd:scale-125" />
           )}
         </Button>
       </nav>

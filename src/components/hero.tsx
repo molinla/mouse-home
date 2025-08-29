@@ -105,23 +105,42 @@ export default function Hero() {
       <nav className="absolute bottom-4 left-0 w-full flex items-center justify-center z-20">
         <button
           type="button"
-          className="bg-transparent border-none animate-bounce"
+          className="bg-transparent border-none hd:scale-125"
         >
           <svg
             role="presentation"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
+            width="32"
+            height="40"
+            viewBox="0 0 40 50"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-white animate-pulse"
+            className="text-white"
+            style={{
+              shapeRendering: 'geometricPrecision',
+              strokeLinecap: 'round',
+              strokeLinejoin: 'round',
+            }}
           >
             <path
-              d="M6 9l6 6 6-6"
+              d="M8 12 L20 20 L32 12"
               stroke="currentColor"
               strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              className="opacity-80 animate-pulse"
+              style={{ animationDelay: '0s', animationDuration: '1.5s' }}
+            />
+            <path
+              d="M8 22 L20 30 L32 22"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="opacity-80 animate-pulse"
+              style={{ animationDelay: '0.3s', animationDuration: '1.5s' }}
+            />
+            <path
+              d="M8 32 L20 40 L32 32"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="opacity-80 animate-pulse"
+              style={{ animationDelay: '0.6s', animationDuration: '1.5s' }}
             />
           </svg>
         </button>
