@@ -1,5 +1,5 @@
 import { Mesh, Program, Renderer, Triangle } from 'ogl'
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export type RaysOrigin =
   | 'top-center'
@@ -357,7 +357,8 @@ void main() {
           }
 
           const deltaTime = t - lastFrameTimeRef.current
-          if (deltaTime < 16.67) {
+          // 控制帧率到30fps以减少GPU负载
+          if (deltaTime < 33.33) {
             animationIdRef.current = requestAnimationFrame(loop)
             return
           }
@@ -553,7 +554,7 @@ void main() {
   useEffect(() => {
     if (!followMouse) return
 
-    const throttledHandler = throttle(throttledMouseMove, 16)
+    const throttledHandler = throttle(throttledMouseMove, 32)
 
     window.addEventListener('mousemove', throttledHandler)
     return () => window.removeEventListener('mousemove', throttledHandler)

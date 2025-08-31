@@ -177,7 +177,6 @@ const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
     }
   })
 
-  // Expose ref function for external control
   useImperativeHandle(ref, () => ({
     enterStage2,
     quitStage2,
