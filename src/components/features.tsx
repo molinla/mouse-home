@@ -21,7 +21,7 @@ import CarouselViewer, { type CarouselViewerRef } from './carousel-viewer'
 import Footer from './footer'
 import Hero from './hero'
 
-const intervalTime = 5000
+const intervalTime = 3000
 const COPY_WRITE_TEXT = [
   {
     title: 'AI边缘检测计算',
@@ -205,99 +205,101 @@ const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
           黑匣边缘计算设备能做什么？
         </motion.h1>
       </motion.div>
-      <div className="absolute inset-0 min-h-screen w-full z-10 overflow-hidden">
-        <HackerRain
-          className="absolute inset-0 w-screen h-screen"
-          maxRippleSize={2000}
-          ref={hackerRainRef}
-        />
-        <section className=" absolute mx-auto inset-0 z-10 max-w-7xl hd:max-w-9xl h-screen">
-          <motion.header
-            layout
-            className="absolute top-24 left-0 flex flex-col gap-4 text-white pr-[40vw] z-30"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: shouldAnimateText ? 1 : 0 }}
-            transition={{
-              layout: { type: 'spring', stiffness: 300, damping: 30 },
-              opacity: { duration: 0.3 },
-            }}
-          >
-            <AnimatePresence mode="popLayout">
-              <motion.h2
-                layout
-                key={`title-${currentIndex}`}
-                variants={{
-                  hidden: { opacity: 0, y: -50 },
-                  visible: { opacity: 1, y: 0 },
-                  exit: { opacity: 0, y: 50 },
-                }}
-                initial="hidden"
-                animate={shouldAnimateText ? 'visible' : 'hidden'}
-                exit="exit"
-                transition={{
-                  type: 'tween',
-                  duration: 0.1,
-                  ease: 'easeOut',
-                }}
-                className="text-3xl font-bold hd:text-6xl hd:leading-[1.5]"
-              >
-                {COPY_WRITE_TEXT[currentIndex].title}
-              </motion.h2>
-            </AnimatePresence>
-            <AnimatePresence mode="popLayout">
-              <motion.p
-                layout
-                key={`description-${currentIndex}`}
-                variants={{
-                  hidden: { opacity: 0, y: -50 },
-                  visible: { opacity: 1, y: 0 },
-                  exit: { opacity: 0, y: 50 },
-                }}
-                initial="hidden"
-                animate={shouldAnimateText ? 'visible' : 'hidden'}
-                exit="exit"
-                transition={{
-                  delay: 0.1,
-                  duration: 0.1,
-                  type: 'tween',
-                  ease: 'easeOut',
-                }}
-                className="text-lg hd:text-2xl"
-              >
-                {COPY_WRITE_TEXT[currentIndex].description}
-              </motion.p>
-            </AnimatePresence>
-            <motion.div
+      {isStage1Completed && (
+        <div className="absolute inset-0 min-h-screen w-full z-10 overflow-hidden">
+          <HackerRain
+            className="absolute inset-0 w-screen h-screen"
+            maxRippleSize={2000}
+            ref={hackerRainRef}
+          />
+          <section className=" absolute mx-auto inset-0 z-10 max-w-7xl hd:max-w-9xl h-screen">
+            <motion.header
               layout
-              variants={{
-                hidden: { opacity: 0, x: -150 },
-                visible: { opacity: 1, x: 0 },
+              className="absolute top-24 left-0 flex flex-col gap-4 text-white pr-[40vw] z-30"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: shouldAnimateText ? 1 : 0 }}
+              transition={{
+                layout: { type: 'spring', stiffness: 300, damping: 30 },
+                opacity: { duration: 0.3 },
               }}
-              initial="hidden"
-              animate={shouldAnimateText ? 'visible' : 'hidden'}
             >
-              <CarouselProgressNav
-                className="mt-6"
+              <AnimatePresence mode="popLayout">
+                <motion.h2
+                  layout
+                  key={`title-${currentIndex}`}
+                  variants={{
+                    hidden: { opacity: 0, y: -50 },
+                    visible: { opacity: 1, y: 0 },
+                    exit: { opacity: 0, y: 50 },
+                  }}
+                  initial="hidden"
+                  animate={shouldAnimateText ? 'visible' : 'hidden'}
+                  exit="exit"
+                  transition={{
+                    type: 'tween',
+                    duration: 0.1,
+                    ease: 'easeOut',
+                  }}
+                  className="text-3xl font-bold hd:text-6xl hd:leading-[1.5]"
+                >
+                  {COPY_WRITE_TEXT[currentIndex].title}
+                </motion.h2>
+              </AnimatePresence>
+              <AnimatePresence mode="popLayout">
+                <motion.p
+                  layout
+                  key={`description-${currentIndex}`}
+                  variants={{
+                    hidden: { opacity: 0, y: -50 },
+                    visible: { opacity: 1, y: 0 },
+                    exit: { opacity: 0, y: 50 },
+                  }}
+                  initial="hidden"
+                  animate={shouldAnimateText ? 'visible' : 'hidden'}
+                  exit="exit"
+                  transition={{
+                    delay: 0.1,
+                    duration: 0.1,
+                    type: 'tween',
+                    ease: 'easeOut',
+                  }}
+                  className="text-lg hd:text-2xl"
+                >
+                  {COPY_WRITE_TEXT[currentIndex].description}
+                </motion.p>
+              </AnimatePresence>
+              <motion.div
+                layout
+                variants={{
+                  hidden: { opacity: 0, x: -150 },
+                  visible: { opacity: 1, x: 0 },
+                }}
+                initial="hidden"
+                animate={shouldAnimateText ? 'visible' : 'hidden'}
+              >
+                <CarouselProgressNav
+                  className="mt-6"
+                  totalSlides={totalSlides}
+                  currentIndex={currentIndex}
+                  intervalTime={intervalTime}
+                  restartNonceByIndex={restartNonceByIndex}
+                  onDotClick={handleDotClick}
+                />
+              </motion.div>
+            </motion.header>
+            <div className="relative w-full px-[20%] flex items-center justify-center">
+              <CarouselViewer
+                images={images}
+                currentIndex={virtualIndex}
                 totalSlides={totalSlides}
-                currentIndex={currentIndex}
-                intervalTime={intervalTime}
-                restartNonceByIndex={restartNonceByIndex}
-                onDotClick={handleDotClick}
+                onItemClick={handleDotClick}
+                className="translate-y-[40vh]"
+                ref={carouselViewerRef}
               />
-            </motion.div>
-          </motion.header>
-          <div className="relative w-full px-[20%] flex items-center justify-center">
-            <CarouselViewer
-              images={images}
-              currentIndex={virtualIndex}
-              totalSlides={totalSlides}
-              onItemClick={handleDotClick}
-              className="translate-y-[40vh]"
-              ref={carouselViewerRef}
-            />
-          </div>
-        </section>
-      </div>
+            </div>
+          </section>
+        </div>
+      )}
     </section>
   )
 })
@@ -392,8 +394,8 @@ function LowCode(props: { onQuit?: () => void }) {
         </div>
       )}
       <AnimatePresence mode="popLayout">
-        {showLowCode && <LowCodeHome />}
-        {showLowCode && <Footer className="absolute bottom-0" />}
+        {showLowCode && <LowCodeHome key="low-code-home" />}
+        {showLowCode && <Footer key="footer" className="absolute bottom-0" />}
       </AnimatePresence>
     </motion.section>
   )
@@ -458,14 +460,21 @@ function LowCodeHome() {
 
 export default function Features() {
   const whatCanWeDoRef = useRef<WhatCanWeDoRef>(null)
-
+  const [heroVisible, setHeroVisible] = useState(false)
+  const { scrollYProgress } = useScroll()
+  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
+    if (latest > 0.3) {
+      setHeroVisible(false)
+    } else {
+      setHeroVisible(true)
+    }
+  })
   return (
     <article className="min-h-screen">
-      <Hero className="fixed inset-0" />
+      {heroVisible && <Hero className="fixed inset-0" />}
       <WhatCanWeDo ref={whatCanWeDoRef} />
       <LowCode
         onQuit={() => {
-          console.log('onQuit')
           whatCanWeDoRef.current?.enterStage2()
         }}
       />
