@@ -5,6 +5,7 @@ import {
   useImperativeHandle,
   useMemo,
   useRef,
+  useState,
 } from 'react'
 
 interface HackerRainProps {
@@ -17,6 +18,8 @@ interface HackerRainProps {
 
 interface HackerRainRef {
   replay: () => void
+  stop: () => void
+  start: () => void
 }
 
 const HackerRain = forwardRef<HackerRainRef, HackerRainProps>(
@@ -32,6 +35,7 @@ const HackerRain = forwardRef<HackerRainRef, HackerRainProps>(
   ) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const animationRef = useRef<number>(null)
+    const [isRunning, setIsRunning] = useState(true)
 
     const columnsRef = useRef<
       Array<{ y: number; trail: Array<{ char: string; y: number }> }>
@@ -81,19 +85,37 @@ const HackerRain = forwardRef<HackerRainRef, HackerRainProps>(
         ctx.fillStyle = 'rgba(0, 0, 0, 1)'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
       }
+
+      setIsRunning(true)
     }, [initializeColumns])
+
+    const stop = useCallback(() => {
+      setIsRunning(false)
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+        animationRef.current = null
+      }
+    }, [])
+
+    const start = useCallback(() => {
+      if (!isRunning) {
+        setIsRunning(true)
+      }
+    }, [isRunning])
 
     useImperativeHandle(
       ref,
       () => ({
         replay,
+        stop,
+        start,
       }),
-      [replay]
+      [replay, stop, start]
     )
 
     const draw = useCallback(() => {
       const canvas = canvasRef.current
-      if (!canvas) return
+      if (!canvas || !isRunning) return
       const ctx = canvas.getContext('2d')
       if (!ctx) return
 
@@ -164,8 +186,10 @@ const HackerRain = forwardRef<HackerRainRef, HackerRainProps>(
       })
       ripplesRef.current = ripplesRef.current.filter((r) => r.r < maxRippleSize)
 
-      animationRef.current = requestAnimationFrame(draw)
-    }, [updateInterval, rippleSpeed, rippleStep, maxRippleSize])
+      if (isRunning) {
+        animationRef.current = requestAnimationFrame(draw)
+      }
+    }, [updateInterval, rippleSpeed, rippleStep, maxRippleSize, isRunning])
 
     const handleResize = useCallback(() => {
       const canvas = canvasRef.current
@@ -228,6 +252,12 @@ const HackerRain = forwardRef<HackerRainRef, HackerRainProps>(
         if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current)
       }
     }, [draw, debouncedResize, handleClick, handleResize])
+
+    useEffect(() => {
+      if (isRunning && !animationRef.current) {
+        draw()
+      }
+    }, [isRunning, draw])
 
     return (
       <canvas

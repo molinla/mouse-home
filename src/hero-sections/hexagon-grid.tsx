@@ -185,21 +185,31 @@ class Hexagon {
 
 export interface HexagonGridHandle {
   replay: () => void
+  start: () => void
+  stop: () => void
 }
 
 export const HexagonGrid = forwardRef<HexagonGridHandle, HexagonGridProps>(
   ({ backgroundColor = '#000000', hexSize = 40, gap = 2, style }, ref) => {
     const [replayKey, setReplayKey] = useState(0)
+    const [isAnimationRunning, setIsAnimationRunning] = useState(true)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const hexagonsRef = useRef<Hexagon[]>([])
     const isMouseOnScreenRef = useRef(false)
     const randomActivationTimerRef = useRef<number>(null)
+    const animationFrameIdRef = useRef<number>(null)
 
     useImperativeHandle(ref, () => ({
       replay() {
         // Incrementing the key forces the effect to clean up and re-run,
         // effectively re-initializing the component and its animations.
         setReplayKey((k) => k + 1)
+      },
+      start() {
+        setIsAnimationRunning(true)
+      },
+      stop() {
+        setIsAnimationRunning(false)
       },
     }))
 
@@ -299,6 +309,11 @@ export const HexagonGrid = forwardRef<HexagonGridHandle, HexagonGridProps>(
       }
 
       const animate = (time: number) => {
+        if (!isAnimationRunning) {
+          animationFrameIdRef.current = null
+          return
+        }
+
         ctx.fillStyle = backgroundColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
@@ -308,10 +323,11 @@ export const HexagonGrid = forwardRef<HexagonGridHandle, HexagonGridProps>(
         }
 
         animationFrameId = requestAnimationFrame(animate)
+        animationFrameIdRef.current = animationFrameId
       }
 
       const activateRandomHexagons = () => {
-        if (hexagonsRef.current.length === 0) return
+        if (hexagonsRef.current.length === 0 || !isAnimationRunning) return
 
         const activationCount = 1 + Math.floor(Math.random() * 30)
 
@@ -354,11 +370,86 @@ export const HexagonGrid = forwardRef<HexagonGridHandle, HexagonGridProps>(
           createHexGrid()
         })
         cancelAnimationFrame(animationFrameId)
+        if (animationFrameIdRef.current) {
+          cancelAnimationFrame(animationFrameIdRef.current)
+          animationFrameIdRef.current = null
+        }
         if (randomActivationTimerRef.current) {
           clearTimeout(randomActivationTimerRef.current)
+          randomActivationTimerRef.current = null
         }
       }
-    }, [backgroundColor, hexSize, gap, replayKey])
+    }, [backgroundColor, hexSize, gap, replayKey, isAnimationRunning])
+
+    // Effect to handle animation start/stop
+    useEffect(() => {
+      if (
+        isAnimationRunning &&
+        !animationFrameIdRef.current &&
+        canvasRef.current
+      ) {
+        const canvas = canvasRef.current
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
+
+        const animate = (time: number) => {
+          if (!isAnimationRunning) {
+            animationFrameIdRef.current = null
+            return
+          }
+
+          ctx.fillStyle = backgroundColor
+          ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+          for (const hex of hexagonsRef.current) {
+            hex.update(time)
+            hex.draw(ctx)
+          }
+
+          const frameId = requestAnimationFrame(animate)
+          animationFrameIdRef.current = frameId
+        }
+
+        const frameId = requestAnimationFrame(animate)
+        animationFrameIdRef.current = frameId
+
+        // Restart random activation if stopped
+        if (!randomActivationTimerRef.current) {
+          const activateRandomHexagons = () => {
+            if (hexagonsRef.current.length === 0 || !isAnimationRunning) return
+
+            const activationCount = 1 + Math.floor(Math.random() * 30)
+
+            for (let i = 0; i < activationCount; i++) {
+              const randomIndex = Math.floor(
+                Math.random() * hexagonsRef.current.length
+              )
+              const randomHex = hexagonsRef.current[randomIndex]
+              const randomStrength = 0.3 + Math.random() * 0.5
+              randomHex.activate(performance.now(), randomStrength)
+            }
+
+            const nextInterval = 500 + Math.random() * 1500
+            randomActivationTimerRef.current = window.setTimeout(
+              activateRandomHexagons,
+              nextInterval
+            )
+          }
+          activateRandomHexagons()
+        }
+      } else if (!isAnimationRunning) {
+        // Stop animation
+        if (animationFrameIdRef.current) {
+          cancelAnimationFrame(animationFrameIdRef.current)
+          animationFrameIdRef.current = null
+        }
+        // Stop random activation
+        if (randomActivationTimerRef.current) {
+          clearTimeout(randomActivationTimerRef.current)
+          randomActivationTimerRef.current = null
+        }
+      }
+    }, [isAnimationRunning, backgroundColor])
 
     return (
       <canvas

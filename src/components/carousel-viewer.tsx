@@ -38,6 +38,7 @@ interface CarouselViewerProps {
 export interface CarouselViewerRef {
   slideIn: () => void
   slideOut: () => void
+  stopAnimation: () => void
 }
 
 interface AnimationState {
@@ -206,6 +207,13 @@ const CarouselViewer = forwardRef<CarouselViewerRef, CarouselViewerProps>(
       })
     }, [])
 
+    const stopAnimation = useCallback(() => {
+      setAnimationState({
+        isAnimating: false,
+        direction: null,
+      })
+    }, [])
+
     useEffect(() => {
       if (
         previousIndexRef.current !== currentIndex &&
@@ -224,8 +232,9 @@ const CarouselViewer = forwardRef<CarouselViewerRef, CarouselViewerProps>(
       () => ({
         slideIn,
         slideOut,
+        stopAnimation,
       }),
-      [slideIn, slideOut]
+      [slideIn, slideOut, stopAnimation]
     )
 
     const visibleRange = 8

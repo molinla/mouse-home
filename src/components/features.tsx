@@ -1,114 +1,77 @@
-/** biome-ignore-all lint/suspicious/noArrayIndexKey: legacy component with index keys */
-import { cn } from '@heroui/react'
-import { useEffect, useRef, useState } from 'react'
-import HackerRain from '../hero-sections/hacker-rain'
+import {
+  AnimatePresence,
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useTransform,
+} from 'framer-motion'
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
+import lowCodeHome from '../assets/low-code-logo.svg'
+import HackerRain, { type HackerRainRef } from '../hero-sections/hacker-rain'
+import HexagonGrid from '../hero-sections/hexagon-grid'
 import useCarousel from '../hook/useCarousel'
+import CarouselProgressNav from './carousel-progress-nav'
 import CarouselViewer, { type CarouselViewerRef } from './carousel-viewer'
+import Footer from './footer'
+import Hero from './hero'
 
-const openPlatformImagesModules = import.meta.glob(
-  '../assets/screenshots/open-platform-*.png',
+const intervalTime = 5000
+const COPY_WRITE_TEXT = [
   {
-    eager: true,
-  }
-)
+    title: 'AI边缘检测计算',
+    description:
+      '可以实现任何操作系统的所有桌面视觉的自动化，图册、桌面图像检测、网页图像检测，或你日常使用的任何其他应用程序的图像检测。',
+    img: new URL(
+      '../assets/screenshots/open-platform-01-home.png',
+      import.meta.url
+    ).href,
+  },
+  {
+    title: '安全与授权',
+    description:
+      '许可证系统：基于机器码的授权验证机制 项目加密：支持项目文件加密和密码保护 设备绑定：支持项目与特定设备绑定，防止非法复制',
+    img: new URL(
+      '../assets/screenshots/open-platform-02-running.png',
+      import.meta.url
+    ).href,
+  },
+  {
+    title: '全功能 IDE',
+    description:
+      '基于浏览器的集成开发环境、支持LUA脚本化开发和自动化任务、支持创建、编辑、删除和分享多个开发项目、支持SSDP协议，自动在网络中广播设备信息',
+    img: new URL(
+      '../assets/screenshots/open-platform-03-editor.png',
+      import.meta.url
+    ).href,
+  },
+  {
+    title: '系统管理',
+    description:
+      '内置应用分发平台、模块化插件架构、支持重启、关机等系统级操作、完整的运行日志记录和查看功能',
+    img: new URL(
+      '../assets/screenshots/open-platform-04-appstore.png',
+      import.meta.url
+    ).href,
+  },
+]
 
-const ProgressBar = ({
-  isActive,
-  isCompleted,
-  durationMs,
-  restartNonce,
-}: {
-  isActive: boolean
-  isCompleted: boolean
-  durationMs: number
-  restartNonce: number
-}) => {
-  const [animating, setAnimating] = useState(false)
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: we need force update when restartNonce changes
-  useEffect(() => {
-    if (!isActive) {
-      setAnimating(false)
-      return
-    }
-    setAnimating(false)
-    const id = requestAnimationFrame(() => {
-      setAnimating(true)
-    })
-    return () => cancelAnimationFrame(id)
-  }, [isActive, restartNonce])
-
-  const transform = isActive
-    ? animating
-      ? 'translateX(0%)'
-      : 'translateX(-100%)'
-    : isCompleted
-      ? 'translateX(0%)'
-      : 'translateX(-100%)'
-
-  const transitionDuration = isActive && animating ? `${durationMs}ms` : '0ms'
-  const transitionProperty = isActive && animating ? 'transform' : 'none'
-
-  return (
-    <span
-      className="absolute inset-0 bg-white/60 transition-transform ease-linear"
-      style={{ transform, transitionDuration, transitionProperty }}
-    />
-  )
+export interface WhatCanWeDoRef {
+  enterStage2: () => void
+  quitStage2: () => void
 }
 
-const CarouselProgressNav = ({
-  totalSlides,
-  currentIndex,
-  intervalTime,
-  restartNonceByIndex,
-  onDotClick,
-  className,
-}: {
-  totalSlides: number
-  currentIndex: number
-  intervalTime: number
-  restartNonceByIndex: number[]
-  onDotClick: (index: number) => void
-  className?: string
-}) => {
-  return (
-    <nav className={cn('flex items-center gap-2', className)}>
-      {Array.from({ length: totalSlides }).map((_, index) => {
-        const isActive = index === currentIndex
-        const isCompleted = index < currentIndex
+const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
+  const totalSlides = COPY_WRITE_TEXT.length
 
-        return (
-          <button
-            className="relative h-1 w-18 hd:w-24 overflow-hidden cursor-pointer transition-all duration-300 bg-white/30"
-            onClick={() => onDotClick(index)}
-            key={index}
-            type="button"
-          >
-            <ProgressBar
-              isActive={isActive}
-              isCompleted={isCompleted}
-              durationMs={intervalTime}
-              restartNonce={restartNonceByIndex[index]}
-            />
-          </button>
-        )
-      })}
-    </nav>
-  )
-}
+  const images = COPY_WRITE_TEXT.map((item) => item.img)
 
-function WhatCanWeDo() {
-  const intervalTime = 5000
-  const carouselViewerRef = useRef<CarouselViewerRef>(null)
-  const openPlatformImages = Object.entries(openPlatformImagesModules).map(
-    ([_, module]) => (module as any).default as string
-  )
-  const totalSlides = openPlatformImages.length
-
-  const images = openPlatformImages
-
-  const { currentIndex, virtualIndex, goTo, start, pause } = useCarousel({
+  const { currentIndex, virtualIndex, goTo, start, pause, next } = useCarousel({
     maxLength: totalSlides,
     interval: intervalTime,
     autoStart: true,
@@ -129,37 +92,200 @@ function WhatCanWeDo() {
     setTimeout(() => start(), 0)
   }
 
+  const { scrollYProgress } = useScroll()
+  const fontSizeScale = useTransform(scrollYProgress, [0, 0.3], [300, 1])
+  const backgroundColor = useTransform(
+    scrollYProgress,
+    [0.3, 0.35],
+    ['rgb(255, 255, 255)', 'rgb(0, 0, 0)']
+  )
+  const backgroundOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.35, 0.4],
+    [1, 1, 0]
+  )
+  const [isPointerEnabled, setIsPointerEnabled] = useState(false)
+  const [isStage1Completed, setIsStage1Completed] = useState(false)
+  const [shouldAnimateText, setShouldAnimateText] = useState(false)
+
+  useMotionValueEvent(fontSizeScale, 'change', (latest) => {
+    setIsPointerEnabled(latest < 300)
+    setIsStage1Completed(latest <= 1)
+  })
+
+  const hackerRainRef = useRef<HackerRainRef>(null)
+  const carouselViewerRef = useRef<CarouselViewerRef>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const enterStage2 = useCallback(() => {
+    hackerRainRef.current?.start()
+    hackerRainRef.current?.replay()
+    setShouldAnimateText(true)
+    carouselViewerRef.current?.slideIn()
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+    timerRef.current = setTimeout(() => {
+      carouselViewerRef.current?.stopAnimation()
+      start()
+      timerRef.current = null
+    }, 1000)
+  }, [start])
+
+  const quitStage2 = useCallback(() => {
+    hackerRainRef.current?.stop()
+    setShouldAnimateText(false)
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+    carouselViewerRef.current?.slideOut()
+    pause()
+  }, [pause])
+
+  useMotionValueEvent(backgroundOpacity, 'change', (latest) => {
+    if (latest > 0) {
+      quitStage2()
+    }
+    if (latest === 0) {
+      enterStage2()
+    }
+  })
+
+  const END_INDEX = 4
+
+  const bannerIndex = useTransform(
+    scrollYProgress,
+    [0, 0.5, 0.6, 0.7, 0.8, 0.9],
+    [-1, 0, 1, 2, 3, END_INDEX]
+  )
+
+  useMotionValueEvent(bannerIndex, 'change', (latest) => {
+    const tolerance = 0.005
+    const targetValues = [0, 1, 2, 3, END_INDEX]
+
+    for (const target of targetValues) {
+      if (Math.abs(latest - target) < tolerance) {
+        if (latest === END_INDEX) {
+          quitStage2()
+          return
+        }
+        next()
+        break
+      }
+    }
+  })
+
+  // Expose ref function for external control
+  useImperativeHandle(ref, () => ({
+    enterStage2,
+    quitStage2,
+  }))
+
   return (
-    <section className="relative w-full min-h-screen bg-white dark:bg-transparent flex flex-col items-center justify-center gap-6 md:gap-12 md:px-12">
-      <div className="max-w-7xl hd:max-w-9xl w-full h-screen flex items-center justify-center mx-auto bg-white">
-        <div className="relative z-100 w-full h-screen flex items-center justify-center">
-          <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold leading-tight md:leading-[4] text-[#1d1d1d] dark:text-white text-center">
-            黑匣边缘计算设备能做什么？
-          </h1>
-        </div>
-      </div>
-      <div className="h-screen w-full inset-0 z-10 overflow-hidden">
+    <section
+      style={{
+        pointerEvents: isPointerEnabled ? 'auto' : 'none',
+        mixBlendMode: isStage1Completed ? 'normal' : 'screen',
+      }}
+      className="fixed z-10 inset-0 w-full min-h-screen bg-white flex flex-col items-center justify-center gap-6 md:gap-12 md:px-12"
+    >
+      <motion.div
+        style={{
+          backgroundColor,
+          opacity: backgroundOpacity,
+        }}
+        className="absolute inset-0 z-20 min-h-screen flex items-center justify-center pointer-events-none"
+      >
+        <motion.h1
+          style={{ scale: fontSizeScale }}
+          className="slogan text-3xl md:text-5xl lg:text-7xl font-bold text-center text-black"
+        >
+          黑匣边缘计算设备能做什么？
+        </motion.h1>
+      </motion.div>
+      <div className="absolute inset-0 min-h-screen w-full z-10 overflow-hidden">
         <HackerRain
-          className="absolute inset-0 w-screen h-screen top-[100vh]"
+          className="absolute inset-0 w-screen h-screen"
           maxRippleSize={2000}
+          ref={hackerRainRef}
         />
-        <section className="absolute top-[100vh] mx-auto inset-0 z-10 max-w-7xl hd:max-w-9xl h-screen">
-          <header className="absolute top-24 left-0 flex flex-col gap-4 text-white h-auto pr-[40vw] z-9999">
-            <h2 className="text-3xl font-bold hd:text-6xl hd:leading-[1.5]">
-              AI边缘检测计算
-            </h2>
-            <p className="text-lg hd:text-2xl">
-              可以实现任何操作系统的所有桌面视觉的自动化，图册、桌面图像检测、网页图像检测，或你日常使用的任何其他应用程序的图像检测。
-            </p>
-            <CarouselProgressNav
-              className="mt-6"
-              totalSlides={totalSlides}
-              currentIndex={currentIndex}
-              intervalTime={intervalTime}
-              restartNonceByIndex={restartNonceByIndex}
-              onDotClick={handleDotClick}
-            />
-          </header>
+        <section className=" absolute mx-auto inset-0 z-10 max-w-7xl hd:max-w-9xl h-screen">
+          <motion.header
+            layout
+            className="absolute top-24 left-0 flex flex-col gap-4 text-white pr-[40vw] z-30"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: shouldAnimateText ? 1 : 0 }}
+            transition={{
+              layout: { type: 'spring', stiffness: 300, damping: 30 },
+              opacity: { duration: 0.3 },
+            }}
+          >
+            <AnimatePresence mode="popLayout">
+              <motion.h2
+                layout
+                key={`title-${currentIndex}`}
+                variants={{
+                  hidden: { opacity: 0, y: -50 },
+                  visible: { opacity: 1, y: 0 },
+                  exit: { opacity: 0, y: 50 },
+                }}
+                initial="hidden"
+                animate={shouldAnimateText ? 'visible' : 'hidden'}
+                exit="exit"
+                transition={{
+                  type: 'tween',
+                  duration: 0.1,
+                  ease: 'easeOut',
+                }}
+                className="text-3xl font-bold hd:text-6xl hd:leading-[1.5]"
+              >
+                {COPY_WRITE_TEXT[currentIndex].title}
+              </motion.h2>
+            </AnimatePresence>
+            <AnimatePresence mode="popLayout">
+              <motion.p
+                layout
+                key={`description-${currentIndex}`}
+                variants={{
+                  hidden: { opacity: 0, y: -50 },
+                  visible: { opacity: 1, y: 0 },
+                  exit: { opacity: 0, y: 50 },
+                }}
+                initial="hidden"
+                animate={shouldAnimateText ? 'visible' : 'hidden'}
+                exit="exit"
+                transition={{
+                  delay: 0.1,
+                  duration: 0.1,
+                  type: 'tween',
+                  ease: 'easeOut',
+                }}
+                className="text-lg hd:text-2xl"
+              >
+                {COPY_WRITE_TEXT[currentIndex].description}
+              </motion.p>
+            </AnimatePresence>
+            <motion.div
+              layout
+              variants={{
+                hidden: { opacity: 0, x: -150 },
+                visible: { opacity: 1, x: 0 },
+              }}
+              initial="hidden"
+              animate={shouldAnimateText ? 'visible' : 'hidden'}
+            >
+              <CarouselProgressNav
+                className="mt-6"
+                totalSlides={totalSlides}
+                currentIndex={currentIndex}
+                intervalTime={intervalTime}
+                restartNonceByIndex={restartNonceByIndex}
+                onDotClick={handleDotClick}
+              />
+            </motion.div>
+          </motion.header>
           <div className="relative w-full px-[20%] flex items-center justify-center">
             <CarouselViewer
               images={images}
@@ -174,23 +300,175 @@ function WhatCanWeDo() {
       </div>
     </section>
   )
+})
+
+WhatCanWeDo.displayName = 'WhatCanWeDo'
+
+function LowCode(props: { onQuit?: () => void }) {
+  const START_PROGRESS = 0.8
+  const [showLowCode, setShowLowCode] = useState(false)
+  const [showStage3, setShowStage3] = useState(false)
+  const unmountRef = useRef(false)
+
+  const { scrollYProgress } = useScroll()
+
+  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
+    if (latest > START_PROGRESS) {
+      if (!showStage3) {
+        setShowStage3(true)
+        unmountRef.current = false
+      }
+    } else {
+      if (showStage3 && !unmountRef.current) {
+        unmountRef.current = true
+        if (props.onQuit) {
+          props.onQuit()
+        }
+        setShowLowCode(false)
+        setShowStage3(false)
+      }
+    }
+  })
+
+  const opacity = useTransform(
+    scrollYProgress,
+    [0, START_PROGRESS, START_PROGRESS + 0.05],
+    [0, 0, 1]
+  )
+
+  const fontScale = useTransform(
+    scrollYProgress,
+    [0, START_PROGRESS, START_PROGRESS + 0.05],
+    [0, 0, 1]
+  )
+
+  const fontColor = useTransform(
+    scrollYProgress,
+    [0, START_PROGRESS, START_PROGRESS + 0.05],
+    ['#ffffff', '#ffffff', '#000000']
+  )
+
+  return (
+    <motion.section
+      style={{
+        pointerEvents: showStage3 ? 'auto' : 'none',
+        opacity,
+      }}
+      className="fixed inset-0 z-30 w-full min-h-screen flex flex-col items-center justify-center bg-white"
+    >
+      {!showLowCode && (
+        <div className="relative max-w-7xl mx-auto">
+          <motion.h1
+            onClick={() => {
+              setShowLowCode(true)
+            }}
+            style={{ scale: fontScale, color: fontColor }}
+            className="text-3xl md:text-5xl lg:text-7xl font-bold text-black text-center cursor-pointer hover:!text-blue-600 active:!text-blue-700 active:scale-95 transition-all"
+          >
+            准备好搭建你的AI应用了吗？
+          </motion.h1>
+          <motion.button
+            style={{
+              opacity: fontScale,
+              transformOrigin: 'left center',
+            }}
+            className="cursor-pointer absolute -top-2 -right-2 md:-top-4 md:-right-4 bg-red-500 text-white text-xs md:text-sm px-3 py-0.5 rounded font-medium"
+            animate={{
+              rotate: [0, -5, 5, -5, 0],
+              scale: [1, 1.05, 1],
+            }}
+            transition={{
+              duration: 0.6,
+              repeat: Infinity,
+              repeatDelay: 1.4,
+              ease: 'easeInOut',
+            }}
+            onClick={() => {
+              setShowLowCode(true)
+            }}
+          >
+            点击
+          </motion.button>
+        </div>
+      )}
+      <AnimatePresence mode="popLayout">
+        {showLowCode && <LowCodeHome />}
+        {showLowCode && <Footer className="absolute bottom-0" />}
+      </AnimatePresence>
+    </motion.section>
+  )
 }
 
-function LowCode() {
+function LowCodeHome() {
   return (
-    <section className="w-full min-h-screen bg-white dark:bg-transparent flex flex-col items-center justify-center gap-6 md:gap-12 p-4 md:p-12 pb-12 md:pb-24">
-      <h1 className="max-w-7xl mx-auto text-3xl md:text-5xl lg:text-7xl font-bold leading-tight md:leading-[4] text-[#1d1d1d] dark:text-white text-center">
-        低代码搭建AI应用
-      </h1>
-    </section>
+    <motion.div
+      key="hexagon-grid"
+      layout
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { delay: 0.5 } }}
+      transition={{ duration: 0.3 }}
+      className="absolute inset-0"
+    >
+      <HexagonGrid />
+      <section className="absolute inset-0 flex flex-col gap-12 items-center justify-center">
+        <motion.img
+          src={lowCodeHome}
+          alt="low-code-home"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -50 }}
+          transition={{
+            duration: 0.6,
+            ease: 'easeOut',
+            delay: 0.2,
+          }}
+        />
+        <motion.nav
+          className="mb-24"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -30 }}
+          transition={{
+            duration: 0.5,
+            ease: 'easeOut',
+            delay: 0.4,
+          }}
+        >
+          <motion.button
+            style={{
+              background: 'linear-gradient(253deg, #0055FF 47%, #4E89FF 100%)',
+            }}
+            className="text-white px-6 py-2 rounded w-48 cursor-pointer"
+            type="button"
+            whileHover={{
+              scale: 1.05,
+              boxShadow: '0 10px 20px rgba(0, 85, 255, 0.3)',
+            }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+          >
+            立即使用
+          </motion.button>
+        </motion.nav>
+      </section>
+    </motion.div>
   )
 }
 
 export default function Features() {
+  const whatCanWeDoRef = useRef<WhatCanWeDoRef>(null)
+
   return (
     <article className="min-h-screen">
-      <WhatCanWeDo />
-      <LowCode />
+      <Hero className="fixed inset-0" />
+      <WhatCanWeDo ref={whatCanWeDoRef} />
+      <LowCode
+        onQuit={() => {
+          console.log('onQuit')
+          whatCanWeDoRef.current?.enterStage2()
+        }}
+      />
     </article>
   )
 }
