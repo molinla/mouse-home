@@ -1,5 +1,11 @@
 import type React from 'react'
-import { useEffect, useRef } from 'react'
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
 
 interface HexagonGridProps {
   backgroundColor?: string
@@ -177,187 +183,199 @@ class Hexagon {
   }
 }
 
-export const HexagonGrid: React.FC<HexagonGridProps> = ({
-  backgroundColor = '#000000',
-  hexSize = 40,
-  gap = 2,
-  style,
-}) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const hexagonsRef = useRef<Hexagon[]>([])
-  const isMouseOnScreenRef = useRef(false)
-  const randomActivationTimerRef = useRef<number>(null)
+export interface HexagonGridHandle {
+  replay: () => void
+}
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+export const HexagonGrid = forwardRef<HexagonGridHandle, HexagonGridProps>(
+  ({ backgroundColor = '#000000', hexSize = 40, gap = 2, style }, ref) => {
+    const [replayKey, setReplayKey] = useState(0)
+    const canvasRef = useRef<HTMLCanvasElement>(null)
+    const hexagonsRef = useRef<Hexagon[]>([])
+    const isMouseOnScreenRef = useRef(false)
+    const randomActivationTimerRef = useRef<number>(null)
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    useImperativeHandle(ref, () => ({
+      replay() {
+        // Incrementing the key forces the effect to clean up and re-run,
+        // effectively re-initializing the component and its animations.
+        setReplayKey((k) => k + 1)
+      },
+    }))
 
-    const setupCanvas = () => {
-      const dpr = window.devicePixelRatio || 1
-      const displayWidth = window.innerWidth
-      const displayHeight = window.innerHeight
-
-      canvas.width = displayWidth * dpr
-      canvas.height = displayHeight * dpr
-      canvas.style.width = `${displayWidth}px`
-      canvas.style.height = `${displayHeight}px`
-
-      ctx.scale(dpr, dpr)
-    }
-
-    const createHexGrid = () => {
-      const hexWidth = hexSize * 2
-      const hexHeight = Math.sqrt(3) * hexSize
-
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-
-      const numRows = Math.ceil(canvas.height / hexHeight) + 2
-      const numCols = Math.ceil(canvas.width / (hexWidth * 0.75)) + 2
-
-      const startX = centerX - (numCols * hexWidth * 0.75) / 2
-      const startY = centerY - (numRows * hexHeight) / 2
-
-      hexagonsRef.current = []
-
-      for (let row = 0; row < numRows; row++) {
-        for (let col = 0; col < numCols; col++) {
-          const x = startX + col * hexWidth * 0.75
-          const y = startY + row * hexHeight + (col % 2) * (hexHeight / 2)
-          const hex = new Hexagon(x, y, hexSize, gap, centerX, centerY)
-          hexagonsRef.current.push(hex)
-        }
-      }
-
-      const maxRings = Math.max(
-        ...hexagonsRef.current.map((hex) => hex.getRing())
-      )
-
-      for (const hex of hexagonsRef.current) {
-        hex.startAnimation(maxRings)
-      }
-    }
-
-    const handleMouseMove = (e: MouseEvent) => {
+    useEffect(() => {
+      // reference the key so that eslint considers it used
+      void replayKey
       const canvas = canvasRef.current
       if (!canvas) return
 
-      const rect = canvas.getBoundingClientRect()
-      const dpr = window.devicePixelRatio || 1
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
 
-      const isInCanvas =
-        e.clientX >= rect.left &&
-        e.clientX <= rect.right &&
-        e.clientY >= rect.top &&
-        e.clientY <= rect.bottom
+      const setupCanvas = () => {
+        const dpr = window.devicePixelRatio || 1
+        const displayWidth = window.innerWidth
+        const displayHeight = window.innerHeight
 
-      if (!isInCanvas) {
+        canvas.width = displayWidth * dpr
+        canvas.height = displayHeight * dpr
+        canvas.style.width = `${displayWidth}px`
+        canvas.style.height = `${displayHeight}px`
+
+        ctx.scale(dpr, dpr)
+      }
+
+      const createHexGrid = () => {
+        const hexWidth = hexSize * 2
+        const hexHeight = Math.sqrt(3) * hexSize
+
+        const centerX = canvas.width / 2
+        const centerY = canvas.height / 2
+
+        const numRows = Math.ceil(canvas.height / hexHeight) + 2
+        const numCols = Math.ceil(canvas.width / (hexWidth * 0.75)) + 2
+
+        const startX = centerX - (numCols * hexWidth * 0.75) / 2
+        const startY = centerY - (numRows * hexHeight) / 2
+
+        hexagonsRef.current = []
+
+        for (let row = 0; row < numRows; row++) {
+          for (let col = 0; col < numCols; col++) {
+            const x = startX + col * hexWidth * 0.75
+            const y = startY + row * hexHeight + (col % 2) * (hexHeight / 2)
+            const hex = new Hexagon(x, y, hexSize, gap, centerX, centerY)
+            hexagonsRef.current.push(hex)
+          }
+        }
+
+        const maxRings = Math.max(
+          ...hexagonsRef.current.map((hex) => hex.getRing())
+        )
+
+        for (const hex of hexagonsRef.current) {
+          hex.startAnimation(maxRings)
+        }
+      }
+
+      const handleMouseMove = (e: MouseEvent) => {
+        const canvas = canvasRef.current
+        if (!canvas) return
+
+        const rect = canvas.getBoundingClientRect()
+        const dpr = window.devicePixelRatio || 1
+
+        const isInCanvas =
+          e.clientX >= rect.left &&
+          e.clientX <= rect.right &&
+          e.clientY >= rect.top &&
+          e.clientY <= rect.bottom
+
+        if (!isInCanvas) {
+          isMouseOnScreenRef.current = false
+          for (const hex of hexagonsRef.current) {
+            hex.reset()
+          }
+          return
+        }
+
+        if (!isMouseOnScreenRef.current) {
+          isMouseOnScreenRef.current = true
+        }
+
+        const mouseX = (e.clientX - rect.left) * dpr
+        const mouseY = (e.clientY - rect.top) * dpr
+
+        for (const hex of hexagonsRef.current) {
+          hex.updateMouseInfluence(mouseX / dpr, mouseY / dpr)
+        }
+      }
+
+      const handleMouseLeave = () => {
         isMouseOnScreenRef.current = false
         for (const hex of hexagonsRef.current) {
           hex.reset()
         }
-        return
       }
 
-      if (!isMouseOnScreenRef.current) {
-        isMouseOnScreenRef.current = true
+      const animate = (time: number) => {
+        ctx.fillStyle = backgroundColor
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+        for (const hex of hexagonsRef.current) {
+          hex.update(time)
+          hex.draw(ctx)
+        }
+
+        animationFrameId = requestAnimationFrame(animate)
       }
 
-      const mouseX = (e.clientX - rect.left) * dpr
-      const mouseY = (e.clientY - rect.top) * dpr
+      const activateRandomHexagons = () => {
+        if (hexagonsRef.current.length === 0) return
 
-      for (const hex of hexagonsRef.current) {
-        hex.updateMouseInfluence(mouseX / dpr, mouseY / dpr)
-      }
-    }
+        const activationCount = 1 + Math.floor(Math.random() * 30)
 
-    const handleMouseLeave = () => {
-      isMouseOnScreenRef.current = false
-      for (const hex of hexagonsRef.current) {
-        hex.reset()
-      }
-    }
+        for (let i = 0; i < activationCount; i++) {
+          const randomIndex = Math.floor(
+            Math.random() * hexagonsRef.current.length
+          )
+          const randomHex = hexagonsRef.current[randomIndex]
+          const randomStrength = 0.3 + Math.random() * 0.5
+          randomHex.activate(performance.now(), randomStrength)
+        }
 
-    const animate = (time: number) => {
-      ctx.fillStyle = backgroundColor
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-      for (const hex of hexagonsRef.current) {
-        hex.update(time)
-        hex.draw(ctx)
-      }
-
-      animationFrameId = requestAnimationFrame(animate)
-    }
-
-    const activateRandomHexagons = () => {
-      if (hexagonsRef.current.length === 0) return
-
-      const activationCount = 1 + Math.floor(Math.random() * 30)
-
-      for (let i = 0; i < activationCount; i++) {
-        const randomIndex = Math.floor(
-          Math.random() * hexagonsRef.current.length
+        const nextInterval = 500 + Math.random() * 1500
+        randomActivationTimerRef.current = window.setTimeout(
+          activateRandomHexagons,
+          nextInterval
         )
-        const randomHex = hexagonsRef.current[randomIndex]
-        const randomStrength = 0.3 + Math.random() * 0.5
-        randomHex.activate(performance.now(), randomStrength)
       }
 
-      const nextInterval = 500 + Math.random() * 1500
-      randomActivationTimerRef.current = window.setTimeout(
-        activateRandomHexagons,
-        nextInterval
-      )
-    }
+      let animationFrameId: number
 
-    let animationFrameId: number
-
-    setupCanvas()
-    createHexGrid()
-    activateRandomHexagons()
-
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseleave', handleMouseLeave)
-    window.addEventListener('resize', () => {
       setupCanvas()
       createHexGrid()
-    })
+      activateRandomHexagons()
 
-    animationFrameId = requestAnimationFrame(animate)
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseleave', handleMouseLeave)
-      window.removeEventListener('resize', () => {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseleave', handleMouseLeave)
+      window.addEventListener('resize', () => {
         setupCanvas()
         createHexGrid()
       })
-      cancelAnimationFrame(animationFrameId)
-      if (randomActivationTimerRef.current) {
-        clearTimeout(randomActivationTimerRef.current)
-      }
-    }
-  }, [backgroundColor, hexSize, gap])
 
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        background: backgroundColor,
-        pointerEvents: 'none',
-        ...style,
-      }}
-    />
-  )
-}
+      animationFrameId = requestAnimationFrame(animate)
+
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseleave', handleMouseLeave)
+        window.removeEventListener('resize', () => {
+          setupCanvas()
+          createHexGrid()
+        })
+        cancelAnimationFrame(animationFrameId)
+        if (randomActivationTimerRef.current) {
+          clearTimeout(randomActivationTimerRef.current)
+        }
+      }
+    }, [backgroundColor, hexSize, gap, replayKey])
+
+    return (
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: backgroundColor,
+          pointerEvents: 'none',
+          ...style,
+        }}
+      />
+    )
+  }
+)
 
 export default HexagonGrid

@@ -5,7 +5,7 @@ import Hero from './components/hero.tsx'
 
 function App() {
   return (
-    <article className="min-h-screen select-none">
+    <article className="min-h-screen">
       <Header />
       <Hero />
       <Features />

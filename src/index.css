@@ -73,6 +73,19 @@ html {
 }
 
 
+@keyframes hover-3d {
+  0% {
+    transform: translateZ(0);
+  }
+
+  100% {
+    transform: translateZ(20px);
+  }
+}
+
+.hover-3d {
+  animation: hover-3d 0.5s ease-in-out infinite both;
+}
 
 .animated-gradient {
   background:
@@ -117,4 +130,28 @@ html {
 
 .translate-z-minus-3 {
   transform: translateZ(-3rem);
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateX(var(--origin-translateX, 0)) translateY(calc(var(--origin-translateY, 0) + 1000px)) translateZ(var(--origin-translateZ, 0)) rotateX(var(--origin-rotateX, 0)) rotateY(var(--origin-rotateY, 0)) scale(var(--origin-scale, 1));
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(var(--origin-translateX, 0)) translateY(var(--origin-translateY, 0)) translateZ(var(--origin-translateZ, 0)) rotateX(var(--origin-rotateX, 0)) rotateY(var(--origin-rotateY, 0)) scale(var(--origin-scale, 1));
+    opacity: var(--origin-opacity, 1);
+  }
+}
+
+@keyframes slideOutToBottom {
+  from {
+    transform: translateX(var(--origin-translateX, 0)) translateY(var(--origin-translateY, 0)) translateZ(var(--origin-translateZ, 0)) rotateX(var(--origin-rotateX, 0)) rotateY(var(--origin-rotateY, 0)) scale(var(--origin-scale, 1));
+    opacity: var(--origin-opacity, 1);
+  }
+
+  to {
+    transform: translateX(var(--origin-translateX, 0)) translateY(calc(var(--origin-translateY, 0) + 1000px)) translateZ(var(--origin-translateZ, 0)) rotateX(var(--origin-rotateX, 0)) rotateY(var(--origin-rotateY, 0)) scale(var(--origin-scale, 1));
+    opacity: 0;
+  }
 }
