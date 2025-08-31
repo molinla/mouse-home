@@ -13,6 +13,10 @@ import {
   useState,
 } from 'react'
 import lowCodeHome from '../assets/low-code-logo.svg'
+import screenshot01 from '../assets/screenshots/open-platform-01-home.png'
+import screenshot02 from '../assets/screenshots/open-platform-02-running.png'
+import screenshot03 from '../assets/screenshots/open-platform-03-editor.png'
+import screenshot04 from '../assets/screenshots/open-platform-04-appstore.png'
 import HackerRain, { type HackerRainRef } from '../hero-sections/hacker-rain'
 import HexagonGrid from '../hero-sections/hexagon-grid'
 import useCarousel from '../hook/useCarousel'
@@ -27,37 +31,25 @@ const COPY_WRITE_TEXT = [
     title: 'AI边缘检测计算',
     description:
       '可以实现任何操作系统的所有桌面视觉的自动化，图册、桌面图像检测、网页图像检测，或你日常使用的任何其他应用程序的图像检测。',
-    img: new URL(
-      '../assets/screenshots/open-platform-01-home.png',
-      import.meta.url
-    ).href,
+    img: screenshot01,
   },
   {
     title: '安全与授权',
     description:
       '许可证系统：基于机器码的授权验证机制 项目加密：支持项目文件加密和密码保护 设备绑定：支持项目与特定设备绑定，防止非法复制',
-    img: new URL(
-      '../assets/screenshots/open-platform-02-running.png',
-      import.meta.url
-    ).href,
+    img: screenshot02,
   },
   {
     title: '全功能 IDE',
     description:
       '基于浏览器的集成开发环境、支持LUA脚本化开发和自动化任务、支持创建、编辑、删除和分享多个开发项目、支持SSDP协议，自动在网络中广播设备信息',
-    img: new URL(
-      '../assets/screenshots/open-platform-03-editor.png',
-      import.meta.url
-    ).href,
+    img: screenshot03,
   },
   {
     title: '系统管理',
     description:
       '内置应用分发平台、模块化插件架构、支持重启、关机等系统级操作、完整的运行日志记录和查看功能',
-    img: new URL(
-      '../assets/screenshots/open-platform-04-appstore.png',
-      import.meta.url
-    ).href,
+    img: screenshot04,
   },
 ]
 
