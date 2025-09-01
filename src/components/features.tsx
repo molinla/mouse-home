@@ -451,7 +451,7 @@ function LowCodeHome() {
 
 export default function Features() {
   const whatCanWeDoRef = useRef<WhatCanWeDoRef>(null)
-  const [heroVisible, setHeroVisible] = useState(false)
+  const [heroVisible, setHeroVisible] = useState(true)
   const { scrollYProgress } = useScroll()
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
     if (latest > 0.3) {
