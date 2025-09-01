@@ -8,7 +8,27 @@ import {
   useRef,
   useState,
 } from 'react'
-import { calculate3DTransform } from '../utils/transform3d'
+import {
+  calculate3DTransform,
+  type Transform3DResult,
+} from '../utils/transform3d'
+
+export interface CarouselParameters {
+  rotateY: number
+  rotateX: number
+  spacingX: number
+  spacingY: number
+  spacingZ: number
+  scale: number
+  perspective: number
+  visibleRange: number
+  staggerDelay: number
+  animationDuration: number
+  easingX1: number
+  easingY1: number
+  easingX2: number
+  easingY2: number
+}
 
 function parseTransformToCSSVars(transform: string, opacity: number) {
   const translateXMatch = transform.match(/translateX\(([^)]+)\)/)
@@ -35,6 +55,7 @@ interface CarouselViewerProps {
   totalSlides: number
   onItemClick?: (index: number) => void
   className?: string
+  parameters: CarouselParameters
 }
 
 export interface CarouselViewerRef {
@@ -59,7 +80,8 @@ interface CarouselRenderProps {
   currentIndex: number
   onItemClick?: (index: number) => void
   className: string
-  getImgTransformSeries: (index: number) => any
+  getImgTransformSeries: (index: number) => Transform3DResult
+  parameters: CarouselParameters
 }
 
 const NormalCarousel = memo(
@@ -69,10 +91,11 @@ const NormalCarousel = memo(
     onItemClick,
     className,
     getImgTransformSeries,
+    parameters,
   }: CarouselRenderProps) => (
     <div
       className={`relative transform-3d ${className}`}
-      style={{ perspective: '2000px' }}
+      style={{ perspective: `${parameters.perspective}px` }}
     >
       {visibleItems.map(({ virtualIndex, realIndex, image }) => {
         const relativeIndex = virtualIndex - currentIndex
@@ -98,6 +121,7 @@ const NormalCarousel = memo(
               <img
                 src={image}
                 className="shadow-white/5 shadow-2xl hover:shadow-white/10 transition-shadow duration-300"
+                style={{ clipPath: 'inset(3px)' }}
                 alt="carousel item"
               />
             </button>
@@ -120,16 +144,16 @@ const AnimatedCarousel = memo(
     className,
     getImgTransformSeries,
     animationState,
+    parameters,
   }: AnimatedCarouselProps) => (
     <div
       className={`relative transform-3d ${className}`}
-      style={{ perspective: '2000px' }}
+      style={{ perspective: `${parameters.perspective}px` }}
     >
       {visibleItems.map(({ virtualIndex, realIndex, image }) => {
         const relativeIndex = virtualIndex - currentIndex
         const transform3D = getImgTransformSeries(relativeIndex)
-        const staggerDelay = 50
-        const itemDelay = Math.abs(relativeIndex) * staggerDelay
+        const itemDelay = Math.abs(relativeIndex) * parameters.staggerDelay
 
         const finalOpacity = relativeIndex >= 0 ? transform3D.opacity || 0 : 0
 
@@ -153,8 +177,8 @@ const AnimatedCarousel = memo(
               ...cssVars,
               zIndex: transform3D.zIndex,
               animationName,
-              animationDuration: '0.8s',
-              animationTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+              animationDuration: `${parameters.animationDuration}s`,
+              animationTimingFunction: `cubic-bezier(${parameters.easingX1}, ${parameters.easingY1}, ${parameters.easingX2}, ${parameters.easingY2})`,
               animationDelay: `${itemDelay}ms`,
               animationFillMode: 'both',
             }}
@@ -168,6 +192,7 @@ const AnimatedCarousel = memo(
               <img
                 src={image}
                 className="shadow-white/5 shadow-2xl hover:shadow-white/10 transition-shadow duration-300"
+                style={{ clipPath: 'inset(3px)' }}
                 alt="carousel item"
               />
             </button>
@@ -179,7 +204,17 @@ const AnimatedCarousel = memo(
 )
 
 const CarouselViewer = forwardRef<CarouselViewerRef, CarouselViewerProps>(
-  ({ images, currentIndex, totalSlides, onItemClick, className = '' }, ref) => {
+  (
+    {
+      images,
+      currentIndex,
+      totalSlides,
+      onItemClick,
+      className = '',
+      parameters,
+    },
+    ref
+  ) => {
     const [animationState, setAnimationState] = useState<AnimationState>({
       isAnimating: false,
       direction: null,
@@ -190,13 +225,14 @@ const CarouselViewer = forwardRef<CarouselViewerRef, CarouselViewerProps>(
     const getImgTransformSeries = useCallback(
       (index: number) =>
         calculate3DTransform(index, {
-          rotateY: -30,
-          rotateX: -10,
-          spacingX: 80,
-          spacingY: -60,
-          spacingZ: -120,
+          rotateY: parameters.rotateY,
+          rotateX: parameters.rotateX,
+          spacingX: parameters.spacingX,
+          spacingY: parameters.spacingY,
+          spacingZ: parameters.spacingZ,
+          scale: parameters.scale,
         }),
-      []
+      [parameters]
     )
 
     const slideIn = useCallback(() => {
@@ -243,7 +279,7 @@ const CarouselViewer = forwardRef<CarouselViewerRef, CarouselViewerProps>(
       [slideIn, slideOut, stopAnimation]
     )
 
-    const visibleRange = 8
+    const visibleRange = parameters.visibleRange
 
     const visibleItems: VisibleItem[] = useMemo(() => {
       const items: VisibleItem[] = []
@@ -260,7 +296,7 @@ const CarouselViewer = forwardRef<CarouselViewerRef, CarouselViewerProps>(
         })
       }
       return items
-    }, [currentIndex, totalSlides, images])
+    }, [currentIndex, totalSlides, images, visibleRange])
 
     const commonProps = {
       visibleItems,
@@ -268,6 +304,7 @@ const CarouselViewer = forwardRef<CarouselViewerRef, CarouselViewerProps>(
       onItemClick,
       className,
       getImgTransformSeries,
+      parameters,
     }
 
     return animationState.isAnimating ? (

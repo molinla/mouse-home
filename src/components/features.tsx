@@ -13,10 +13,14 @@ import {
   useState,
 } from 'react'
 import lowCodeHome from '../assets/low-code-logo.svg'
+import screenshot07 from '../assets/screenshots/client-find-my-device.png'
+import screenshot05 from '../assets/screenshots/client-home.png'
+import screenshot06 from '../assets/screenshots/client-model-training.png'
+import screenshot08 from '../assets/screenshots/client-offline-update.png'
 import screenshot01 from '../assets/screenshots/open-platform-01-home.png'
 import screenshot02 from '../assets/screenshots/open-platform-02-running.png'
 import screenshot03 from '../assets/screenshots/open-platform-03-editor.png'
-import screenshot04 from '../assets/screenshots/open-platform-04-appstore.png'
+import screenshot04 from '../assets/screenshots/open-platform-04-app-store.png'
 import HackerRain, { type HackerRainRef } from '../hero-sections/hacker-rain'
 import HexagonGrid from '../hero-sections/hexagon-grid'
 import useCarousel from '../hook/useCarousel'
@@ -26,7 +30,7 @@ import Footer from './footer'
 import Hero from './hero'
 
 const intervalTime = 3000
-const COPY_WRITE_TEXT = [
+const COPY_WRITE_TEXT_OPEN_PLATFORM = [
   {
     title: 'AI边缘检测计算',
     description:
@@ -53,15 +57,76 @@ const COPY_WRITE_TEXT = [
   },
 ]
 
+const COPY_WRITE_TEXT_CLIENT = [
+  {
+    title: '全平台兼容',
+    description:
+      '兼容 Windows、MacOS、Linux 主流操作系统，支持多平台开发和部署',
+    img: screenshot05,
+  },
+  {
+    title: '自定义模型训练',
+    description: '支持自定义模型训练，如：人脸识别，物体识别，手势识别等',
+    img: screenshot06,
+  },
+  {
+    title: '多设备互通',
+    description:
+      '使用串口兼容调用外部设备，如：摄像头，机械臂，写字机器人等，支持多设备互通',
+    img: screenshot07,
+  },
+  {
+    title: '离线更新',
+    description:
+      '即使断网也可以使用，黑匣HEX可以控制您的键盘和鼠标，就像人一样操作',
+    img: screenshot08,
+  },
+]
+
 export interface WhatCanWeDoRef {
   enterStage2: () => void
   quitStage2: () => void
 }
 
-const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
-  const totalSlides = COPY_WRITE_TEXT.length
+const RIGHT_TOWARDS = {
+  rotateY: -30,
+  rotateX: -10,
+  spacingX: 80,
+  spacingY: -60,
+  spacingZ: -120,
+  perspective: 2000,
+  visibleRange: 8,
+  staggerDelay: 50,
+  animationDuration: 0.8,
+  easingX1: 0.34,
+  easingY1: 1.56,
+  easingX2: 0.64,
+  easingY2: 1,
+  scale: 1,
+}
 
-  const images = COPY_WRITE_TEXT.map((item) => item.img)
+const LEFT_TOWARDS = {
+  rotateY: 30,
+  rotateX: -10,
+  spacingX: -80,
+  spacingY: -60,
+  spacingZ: -120,
+  perspective: 2000,
+  visibleRange: 8,
+  staggerDelay: 50,
+  animationDuration: 0.8,
+  easingX1: 0.34,
+  easingY1: 1.56,
+  easingX2: 0.64,
+  easingY2: 1,
+  scale: 0.75,
+}
+
+const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
+  const totalSlides = COPY_WRITE_TEXT_OPEN_PLATFORM.length
+
+  const images = COPY_WRITE_TEXT_OPEN_PLATFORM.map((item) => item.img)
+  const imagesClient = COPY_WRITE_TEXT_CLIENT.map((item) => item.img)
 
   const { currentIndex, virtualIndex, goTo, start, pause, next } = useCarousel({
     maxLength: totalSlides,
@@ -99,6 +164,8 @@ const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
   const [isPointerEnabled, setIsPointerEnabled] = useState(false)
   const [isStage1Completed, setIsStage1Completed] = useState(false)
   const [shouldAnimateText, setShouldAnimateText] = useState(false)
+  const [isInStage2, setIsInStage2] = useState(false)
+  const previousScrollYProgressRef = useRef(0)
 
   useMotionValueEvent(fontSizeScale, 'change', (latest) => {
     setIsPointerEnabled(latest < 300)
@@ -110,6 +177,8 @@ const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const enterStage2 = useCallback(() => {
+    if (isInStage2) return
+    setIsInStage2(true)
     hackerRainRef.current?.start()
     hackerRainRef.current?.replay()
     setShouldAnimateText(true)
@@ -123,9 +192,11 @@ const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
       start()
       timerRef.current = null
     }, 1000)
-  }, [start])
+  }, [start, isInStage2])
 
   const quitStage2 = useCallback(() => {
+    if (!isInStage2) return
+    setIsInStage2(false)
     hackerRainRef.current?.stop()
     setShouldAnimateText(false)
     if (timerRef.current) {
@@ -134,14 +205,35 @@ const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
     }
     carouselViewerRef.current?.slideOut()
     pause()
-  }, [pause])
+  }, [pause, isInStage2])
+  const [towards, setTowards] = useState<string>('right')
 
-  useMotionValueEvent(backgroundOpacity, 'change', (latest) => {
-    if (latest > 0) {
-      quitStage2()
-    }
-    if (latest === 0) {
+  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
+    const previous = previousScrollYProgressRef.current
+    const isScrollingDown = latest > previous
+    const isScrollingUp = latest < previous
+
+    previousScrollYProgressRef.current = latest
+
+    const shouldBeInStage2 = latest >= 0.35
+    const shouldBeInStage3 = latest >= 0.85
+
+    setTowards(latest > 0.6 ? 'left' : 'right')
+
+    if (previous === 0 && shouldBeInStage2 && !shouldBeInStage3) {
       enterStage2()
+      return
+    }
+
+    if (
+      shouldBeInStage2 &&
+      !isInStage2 &&
+      isScrollingDown &&
+      !shouldBeInStage3
+    ) {
+      enterStage2()
+    } else if (!shouldBeInStage2 && isInStage2 && isScrollingUp) {
+      quitStage2()
     }
   })
 
@@ -160,7 +252,6 @@ const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
     for (const target of targetValues) {
       if (Math.abs(latest - target) < tolerance) {
         if (latest === END_INDEX) {
-          quitStage2()
           return
         }
         next()
@@ -206,7 +297,7 @@ const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
           <section className=" absolute mx-auto inset-0 z-10 max-w-7xl hd:max-w-9xl h-screen">
             <motion.header
               layout
-              className="absolute top-24 left-0 flex flex-col gap-4 text-white pr-[40vw] z-30"
+              className={`absolute top-24 ${towards === 'right' ? 'left-4 hd:left-0' : 'right-4 hd:right-0'} flex flex-col gap-4 text-white ${towards === 'right' ? 'pr-[40vw]' : 'pl-[40vw]'} z-30`}
               initial={{ opacity: 0 }}
               animate={{ opacity: shouldAnimateText ? 1 : 0 }}
               transition={{
@@ -233,7 +324,9 @@ const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
                   }}
                   className="text-3xl font-bold hd:text-6xl hd:leading-[1.5]"
                 >
-                  {COPY_WRITE_TEXT[currentIndex].title}
+                  {towards === 'right'
+                    ? COPY_WRITE_TEXT_OPEN_PLATFORM[currentIndex].title
+                    : COPY_WRITE_TEXT_CLIENT[currentIndex].title}
                 </motion.h2>
               </AnimatePresence>
               <AnimatePresence mode="popLayout">
@@ -256,7 +349,9 @@ const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
                   }}
                   className="text-lg hd:text-2xl"
                 >
-                  {COPY_WRITE_TEXT[currentIndex].description}
+                  {towards === 'right'
+                    ? COPY_WRITE_TEXT_OPEN_PLATFORM[currentIndex].description
+                    : COPY_WRITE_TEXT_CLIENT[currentIndex].description}
                 </motion.p>
               </AnimatePresence>
               <motion.div
@@ -280,11 +375,12 @@ const WhatCanWeDo = forwardRef<WhatCanWeDoRef>((_props, ref) => {
             </motion.header>
             <div className="relative w-full px-[20%] flex items-center justify-center">
               <CarouselViewer
-                images={images}
+                parameters={towards === 'right' ? RIGHT_TOWARDS : LEFT_TOWARDS}
+                images={towards === 'right' ? images : imagesClient}
                 currentIndex={virtualIndex}
                 totalSlides={totalSlides}
                 onItemClick={handleDotClick}
-                className="translate-y-[40vh]"
+                className="sm:translate-y-[40vh] translate-y-[60vh]"
                 ref={carouselViewerRef}
               />
             </div>

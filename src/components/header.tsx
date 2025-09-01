@@ -1,20 +1,8 @@
-import { Button } from '@heroui/react'
-import { useEffect, useState } from 'react'
-import dark from '../assets/icons/dark.svg'
-import light from '../assets/icons/light.svg'
+import { useState } from 'react'
 import logo from '../assets/logo.svg'
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isDark, setIsDark] = useState(false)
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [isDark])
 
   return (
     <header className="absolute z-20 inset-0 top-0 h-fit mx-auto w-full max-w-7xl hd:max-w-9xl text-[#848484] p-5 flex items-center justify-between">
@@ -58,20 +46,6 @@ export default function Header() {
         >
           使用协议
         </button>
-        <Button
-          isIconOnly
-          aria-label="theme"
-          variant="light"
-          onPress={() => {
-            setIsDark(!isDark)
-          }}
-        >
-          {isDark ? (
-            <img src={dark} alt="dark" className="hd:scale-125" />
-          ) : (
-            <img src={light} alt="light" className="hd:scale-125" />
-          )}
-        </Button>
       </nav>
 
       {/* Mobile Menu Button */}
@@ -136,20 +110,6 @@ export default function Header() {
               >
                 使用协议
               </button>
-              <Button
-                isIconOnly
-                aria-label="theme"
-                color="default"
-                onPress={() => {
-                  setIsDark(!isDark)
-                }}
-              >
-                {isDark ? (
-                  <img src={dark} alt="dark" />
-                ) : (
-                  <img src={light} alt="light" />
-                )}
-              </Button>
             </nav>
           </nav>
         </div>
